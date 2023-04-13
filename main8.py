@@ -5,6 +5,8 @@ import pygame
 import sys
 import random
 
+# first commit
+
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 800
 
