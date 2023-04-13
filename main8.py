@@ -53,7 +53,7 @@ class SpriteObject(pygame.sprite.Sprite):
     def get_y(self):
         return self.y
        
-#dssds
+#dssdsddd
     def update(self, x, y):
         mouse_pos = x, y
 
