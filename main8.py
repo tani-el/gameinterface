@@ -17,6 +17,7 @@ yellow = (255,255,0)
 calibration_x, calibration_y = 0, 0
 
 num = [1,2,3,4,5,6,7,8,9,10,11,12,13]
+clicknum = [1,2,3,4,5,6,7,8,9,10,11,12,13]
 random.shuffle(num)
 tar = random.choice(num)-1
 
@@ -331,19 +332,19 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
         
 
         numbers = [
-            myfont.render(str(num[0]),True,white),
-            myfont.render(str(num[1]),True,white),
-            myfont.render(str(num[2]),True,white),
-            myfont.render(str(num[3]),True,white),
-            myfont.render(str(num[4]),True,white),
-            myfont.render(str(num[5]),True,white),
-            myfont.render(str(num[6]),True,white),
-            myfont.render(str(num[7]),True,white),
-            myfont.render(str(num[8]),True,white),
-            myfont.render(str(num[9]),True,white),
-            myfont.render(str(num[10]),True,white),
-            myfont.render(str(num[11]),True,white),
-            myfont.render(str(num[12]),True,white)
+            myfont.render(str(clicknum[0]),True,white),
+            myfont.render(str(clicknum[1]),True,white),
+            myfont.render(str(clicknum[2]),True,white),
+            myfont.render(str(clicknum[3]),True,white),
+            myfont.render(str(clicknum[4]),True,white),
+            myfont.render(str(clicknum[5]),True,white),
+            myfont.render(str(clicknum[6]),True,white),
+            myfont.render(str(clicknum[7]),True,white),
+            myfont.render(str(clicknum[8]),True,white),
+            myfont.render(str(clicknum[9]),True,white),
+            myfont.render(str(clicknum[10]),True,white),
+            myfont.render(str(clicknum[11]),True,white),
+            myfont.render(str(clicknum[12]),True,white)
         ]
 
        
@@ -375,18 +376,18 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
         screen.fill(black)
         group.draw(window)
         pygame.draw.circle(screen, white, (pos_x, pos_y), 10)
-        screen.blit(numbers[0], ((window.get_width() // 4)+15,(window.get_height() // 4)+15))
-        screen.blit(numbers[1], ((window.get_width() // 4)*3 -35,(window.get_height() // 4)+15))
-        screen.blit(numbers[2], ((window.get_width() // 4)+15,(window.get_height() // 4)*3 - 35))
-        screen.blit(numbers[3], ((window.get_width() // 4)*3 -35, (window.get_height() // 4)*3 - 35))
-        screen.blit(numbers[4], ((window.get_width() // 2)-10, (window.get_height() // 2)-10))
+        screen.blit(numbers[1], ((window.get_width() // 4)+15,(window.get_height() // 4)+15))
+        screen.blit(numbers[2], ((window.get_width() // 4)*3 -35,(window.get_height() // 4)+15))
+        screen.blit(numbers[3], ((window.get_width() // 4)+15,(window.get_height() // 4)*3 - 35))
+        screen.blit(numbers[4], ((window.get_width() // 4)*3 -35, (window.get_height() // 4)*3 - 35))
+        screen.blit(numbers[0], ((window.get_width() // 2)-10, (window.get_height() // 2)-10))
         screen.blit(numbers[5], (15, 15))
-        screen.blit(numbers[6], (15, window.get_height()-35))
+        screen.blit(numbers[10], (15, window.get_height()-35))
         screen.blit(numbers[7], (window.get_width()-35, 15))
-        screen.blit(numbers[8], ((window.get_width() // 2) -10, 15))
-        screen.blit(numbers[9], ((window.get_width() // 2) -10, window.get_height()-35))
-        screen.blit(numbers[10], (15, (window.get_height()//2)-10))
-        screen.blit(numbers[11], ((window.get_width()-35, (window.get_height()//2)-10)))
+        screen.blit(numbers[6], ((window.get_width() // 2) -10, 15))
+        screen.blit(numbers[11], ((window.get_width() // 2) -10, window.get_height()-35))
+        screen.blit(numbers[8], (15, (window.get_height()//2)-10))
+        screen.blit(numbers[9], ((window.get_width()-35, (window.get_height()//2)-10)))
         screen.blit(numbers[12], (window.get_width()-35, window.get_height()-35))
         
         pygame.display.update()
