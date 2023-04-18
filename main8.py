@@ -21,10 +21,11 @@ random.shuffle(num)
 tar = random.choice(num)-1
 
 
+
 def calibration(x,y):
     global calibration_x, calibration_y
     
-
+keyInput = [True, True, True, True, True]
 
 class SpriteObject(pygame.sprite.Sprite):
     def __init__(self, x, y, color, target):
@@ -58,7 +59,7 @@ class SpriteObject(pygame.sprite.Sprite):
 
     def update(self, x, y):
         mouse_pos = x, y
-
+        global keyInput
         # 현재 키보드 상태 감지
         keys = pygame.key.get_pressed()
         if self.target == True:
@@ -66,6 +67,8 @@ class SpriteObject(pygame.sprite.Sprite):
         else:
             self.image = self.original_image
 
+
+        global calibration_x, calibration_y
         # 스페이스바 입력 감지 예시
         if keys[pygame.K_SPACE]:  # 스페이스바가 눌렸을 때
             hover = self.rect.collidepoint(mouse_pos)
@@ -83,19 +86,42 @@ class SpriteObject(pygame.sprite.Sprite):
             else:
                 self.image = self.original_image
                 
-
-        elif keys[pygame.K_4]:
-            global calibration_x, calibration_y
-            calibration_x, calibration_y = 0, 0
-            calibration_x, calibration_y = window.get_width() // 2 - x, window.get_height() // 2 - y
-            print("보정 좌표값 : ", calibration_x, calibration_y)
-
-        elif keys[pygame.K_2]:
-            #global calibration_x, calibration_y
-            calibration_x, calibration_y = 0, 0
-            calibration_x, calibration_y = window.get_width() // 2 - x, window.get_height() // 2 - y
-            print("보정 좌표값 : ", calibration_x, calibration_y)
+        
+        elif keys[pygame.K_1] and keyInput[0]:
             
+            calibration_x, calibration_y = 0, 0
+            calibration_x, calibration_y = window.get_width() // 2 - x, window.get_height() // 2 - y                # 중앙 보정 KEY_1
+            #print("보정 좌표값 : ", calibration_x, calibration_y)
+            keyInput[0] = False
+
+        elif keys[pygame.K_2] and keyInput[1]:
+            #global calibration_x, calibration_yx
+            calibration_x, calibration_y = 0, 0
+            calibration_x, calibration_y = (window.get_width()//4) + 25 -x,(window.get_height() // 4)+25 - y        # 중간 왼위 보정 KEY_2
+            #print("보정 좌표값 : ", calibration_x, calibration_y)
+            keyInput[1] = False
+
+        elif keys[pygame.K_3] and keyInput[2]:
+            #global calibration_x, calibration_yx
+            calibration_x, calibration_y = 0, 0
+            calibration_x, calibration_y = (window.get_width() // 4)*3 -25 -x,(window.get_height() // 4)+25 -y      # 중간 오위 보정 KEY_3
+            #print("보정 좌표값 : ", calibration_x, calibration_y)
+            keyInput[2] = False
+        
+        elif keys[pygame.K_4] and keyInput[3]:
+            #global calibration_x, calibration_yx
+            calibration_x, calibration_y = 0, 0
+            calibration_x, calibration_y = (window.get_width() // 4)+25 -x,(window.get_height() // 4)*3 - 25 -y      # 중간 왼아래 보정 KEY_4
+            #print("보정 좌표값 : ", calibration_x, calibration_y)
+            keyInput[3] = False
+
+        elif keys[pygame.K_5] and keyInput[4]:
+            #global calibration_x, calibration_yx
+            calibration_x, calibration_y = 0, 0
+            calibration_x, calibration_y = (window.get_width() // 4)*3 -25 -x, (window.get_height() // 4)*3 - 25 -y      # 중간 오아래 보정 KEY_5
+            #print("보정 좌표값 : ", calibration_x, calibration_y)
+            keyInput[4] = False
+
 
             
 
@@ -212,7 +238,9 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
             # nose_3d_projection, jacobian = cv.projectPoints(nose_3d, rot_vec, trans_vec, camera_mat, dist_mat)
 
             p1 = (int(nose_2d[0]), int(nose_2d[1]))
-            p2 = (int(nose_2d[0] + y * 10), int(nose_2d[1] - x * 10))
+            p2_y = int(nose_2d[1] - x * 10) + 100
+            
+            p2 = (int(nose_2d[0] + y * 10),  p2_y)  #p2 보정
 
             # Find the center point of the face
             face_center = np.mean(mesh_points[FACE_OUTLINE], axis=0).astype(int)
@@ -240,17 +268,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
         # pygame
         # ------
 
-        # 시선 기초 보정값
-        x, y = p2
-        x += 50
-        y += 100
-        if x > 600:
-            x *= 1.15
-
-        if y > 300:
-            y *= 2.1
-        else:
-            y *= 2.0
+        
 
        
         
@@ -274,21 +292,38 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
 
 
 
-        print(x, y)
-         # calibration 보정
+        #print(x, y)
+        
+        # 시선 기초 보정값
+        x, y = p2
+        x += 50
+        #y += 100
+        if x > 600:
+            x *= 1.15
+
+        if y > 300:
+            y *= 2.1
+        else:
+            y *= 2.0   
+        
+        
+        # calibration 보정
+
+        group.update(x, y)
+        
         if calibration_x != 0 and x > 0:
-            print("----calibration 중----")
             x *= 1.0 + calibration_x / x
+
         if calibration_y != 0 and y > 0:
-            print("----calibration 중----")
             y *= 1.0 + calibration_y / y
 
-            
+        
+        
 
         list = group.sprites()
         setattr(list[tar],'target',True)
         
-        group.update(x, y)
+        
 
 
 
@@ -328,8 +363,8 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
                 sys.exit()
 
         key_event = pygame.key.get_pressed()
-        if key_event[pygame.K_LEFT]:
-            pos_x -= 1
+        if key_event[pygame.K_ESCAPE]:      # ESC 입력시 프로그램 종료
+            sys.exit()
 
 
 
