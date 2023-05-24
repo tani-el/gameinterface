@@ -16,7 +16,7 @@ SCREEN_WIDTH = 1100
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 pygame.display.set_caption("Chrome Dino Runner")
-os.chdir("C:\\Users\\AN\Desktop\\2023-1 Game Interface\\face\\gameinterface\\Chrome-Dino-Runner-master")
+os.chdir("C:\\Users\\AN\Desktop\\2023-1 Game Interface\\face\\gameinterface\\Chrome-Dino-Runner-master") #C:\\Users\\82102\\Desktop\\GIF\\gameinterface\\Chrome-Dino-Runner-master
 
 Ico = pygame.image.load("assets/DinoWallpaper.png")
 pygame.display.set_icon(Ico)
