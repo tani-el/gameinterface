@@ -15,11 +15,13 @@ score = 0
 font = pygame.font.Font(None, 36)
 
 # 숫자 생성
-numbers = random.sample(range(1, 101), 9)
-max_number=max(numbers)
-print(max_number)
+def generate_numbers():
+    return random.sample(range(1, 101), 9)
 
-is_chack=False
+numbers = generate_numbers()
+max_number = max(numbers)
+
+is_check=False
 
 class NumGame():
     # 게임 루프
@@ -35,13 +37,14 @@ class NumGame():
                     for number, rect in zip(numbers, number_rects):
                         if rect.collidepoint(pos):
                             if clicked_number is None or number > clicked_number:
-                                clicked_number = number
-                                if max_number==number:
-                                    is_chack=True
+                                clicked_number = number  # 숫자 갱신
+                                if max_number == number:
+                                    is_check = True
                     if clicked_number is not None:
-                        if is_chack==True:
+                        if is_check == True: #최댓값이 맞다면 점수를 높임
                             score += 10
-                            is_chack=False
+                            is_check = False
+                    numbers = generate_numbers()  # 숫자 갱신
 
         # 화면 초기화
         screen.fill((255, 255, 255))
