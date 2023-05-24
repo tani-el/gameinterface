@@ -1,199 +1,259 @@
-import os
-import sys
 import pygame
-import random
-from pygame import *
+from main8 import *
+
+
+
+
+
+
+white = (255, 255, 255)
+black = (0, 0, 0)
+yellow = (255,255,0)
+
+calibration_x, calibration_y = 0, 0
+
+num = [1,2,3,4,5,6,7,8,9,10,11,12,13]
+clicknum = [1,2,3,4,5,6,7,8,9,10,11,12,13]
+random.shuffle(num)
+tar = random.choice(num)-1
+
+window = pygame.display.set_mode((800, 800))
+
+def calibration(x,y):
+    global calibration_x, calibration_y
+
+keyInput = [True, True, True, True, True]
+
+class SpriteObject(pygame.sprite.Sprite):
+    def __init__(self, x, y, color, target):
+        super().__init__()
+        self.original_image = pygame.Surface((50, 50), pygame.SRCALPHA)
+
+        pygame.draw.circle(self.original_image, color, (25, 25), 25)
+        self.hover_image = pygame.Surface((50, 50), pygame.SRCALPHA)
+        self.hover_image2 = pygame.Surface((50, 50), pygame.SRCALPHA)
+        pygame.draw.circle(self.hover_image, color, (25, 25), 25)
+        pygame.draw.circle(self.hover_image, (255, 255, 255), (25, 25), 25, 4)  # 흰색으로 변하는 부분
+
+        pygame.draw.circle(self.hover_image2, color, (25, 25), 25)
+        pygame.draw.circle(self.hover_image2, (255,255,0), (25, 25), 25, 4)
+        self.target = target
+
+        self.image = self.original_image
+
+        self.rect = self.image.get_rect(center=(x, y))
+        self.hover = False
+
+        self.x = x
+        self.y = y
+
+    def get_x(self):
+        return self.x
+
+    def get_y(self):
+        return self.y
+
+#dssdsddd
+    def update(self, x, y):
+        mouse_pos = x, y
+        global keyInput
+        # 현재 키보드 상태 감지
+        keys = pygame.key.get_pressed()
+        if self.target == True:
+            self.image = self.hover_image2
+        else:
+            self.image = self.original_image
+
+
+        global calibration_x, calibration_y
+        # 스페이스바 입력 감지 예시
+        if keys[pygame.K_SPACE]:  # 스페이스바가 눌렸을 때
+            hover = self.rect.collidepoint(mouse_pos)
+            self.hover = hover
+
+            if hover:
+                if self.target == True:
+                    self.image = self.hover_image
+                    self.target = False
+                    tar = random.choice(num)-1
+
+                else:
+                    self.image = self.hover_image
+
+            else:
+                self.image = self.original_image
+
+
+        elif keys[pygame.K_1] and keyInput[0]:
+
+            calibration_x, calibration_y = 0, 0
+            calibration_x, calibration_y = window.get_width() // 2 - x, window.get_height() // 2 - y                # 중앙 보정 KEY_1
+            #print("보정 좌표값 : ", calibration_x, calibration_y)
+            keyInput[0] = False
+
+        elif keys[pygame.K_2] and keyInput[1]:
+            #global calibration_x, calibration_yx
+            calibration_x, calibration_y = 0, 0
+            calibration_x, calibration_y = (window.get_width()//4) + 25 -x,(window.get_height() // 4)+25 - y        # 중간 왼위 보정 KEY_2
+            #print("보정 좌표값 : ", calibration_x, calibration_y)
+            keyInput[1] = False
+
+        elif keys[pygame.K_3] and keyInput[2]:
+            #global calibration_x, calibration_yx
+            calibration_x, calibration_y = 0, 0
+            calibration_x, calibration_y = (window.get_width() // 4)*3 -25 -x,(window.get_height() // 4)+25 -y      # 중간 오위 보정 KEY_3
+            #print("보정 좌표값 : ", calibration_x, calibration_y)
+            keyInput[2] = False
+
+        elif keys[pygame.K_4] and keyInput[3]:
+            #global calibration_x, calibration_yx
+            calibration_x, calibration_y = 0, 0
+            calibration_x, calibration_y = (window.get_width() // 4)+25 -x,(window.get_height() // 4)*3 - 25 -y      # 중간 왼아래 보정 KEY_4
+            #print("보정 좌표값 : ", calibration_x, calibration_y)
+            keyInput[3] = False
+
+        elif keys[pygame.K_5] and keyInput[4]:
+            #global calibration_x, calibration_yx
+            calibration_x, calibration_y = 0, 0
+            calibration_x, calibration_y = (window.get_width() // 4)*3 -25 -x, (window.get_height() // 4)*3 - 25 -y      # 중간 오아래 보정 KEY_5
+            #print("보정 좌표값 : ", calibration_x, calibration_y)
+            keyInput[4] = False
+
+
+
+
+
+
 
 pygame.init()
+pygame.display.set_caption("Simple PyGame Example")
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+screen = capture
 
-screen_size_display = (width_screen, height_screen) = (600, 150)
-FPS = 60
-gravity = 0.6
+pos_x = 200
+pos_y = 200
 
-black_color = (0,0,0)
-white_color = (255,255,255)
-bg_color = (235, 235, 235)
+# ------
+# pygame
+# ------  
+while(True):     
+        sprite_object = SpriteObject(*window.get_rect().center, (128, 128, 0),False)
 
-highest_scores = 0
+        group = pygame.sprite.Group([
+            SpriteObject((window.get_width() // 4)+25,(window.get_height() // 4)+25, (128, 0, 0),False),
+            SpriteObject((window.get_width() // 4)*3 -25,(window.get_height() // 4)+25,(0, 128, 0),False), 
+            SpriteObject((window.get_width() // 4)+25,(window.get_height() // 4)*3 - 25, (0, 0, 128),False),
+            SpriteObject((window.get_width() // 4)*3 -25, (window.get_height() // 4)*3 - 25, (128, 128, 0),False),
+            SpriteObject(window.get_width() // 2, window.get_height() // 2, (0, 96, 128),False), #중앙
+            SpriteObject(window.get_width()-25, window.get_height()-25, (128, 0, 96),False), #우하
+            SpriteObject(25, 25, (64, 0, 128),False), #좌상
+            SpriteObject(25, window.get_height()-25, (128, 64, 0),False),#좌하
+            SpriteObject(window.get_width()-25, 25, (32, 128, 0),False),#우상
+            SpriteObject(window.get_width() // 2, 25, (255, 102, 204),False),#중상
+            SpriteObject(window.get_width() // 2, window.get_height()-25, (0, 102, 255),False), #중하
+            SpriteObject(25, window.get_height()//2, (153, 255, 153),False),  #중좌
+            SpriteObject(window.get_width()-25, window.get_height()//2, (255, 255, 102),False) # 중우
+        ])
 
-screen_layout_display = pygame.display.set_mode(screen_size_display)
-time_clock = pygame.time.Clock()
-pygame.display.set_caption("Dino Run ")
 
-# jump_sound = pygame.mixer.Sound('resources/jump.wav')
-# die_sound = pygame.mixer.Sound('resources/die.wav')
-# checkPoint_sound = pygame.mixer.Sound('resources/checkPoint.wav')
 
-def load_image(
-    name,
-    sx=-1,
-    sy=-1,
-    colorkey=None,
-    ):
+        #print(x, y)
 
-    fullname = os.path.join('resources', name)
-    img = pygame.image.load(fullname)
-    img = img.convert()
-    if colorkey is not None:
-        if colorkey == -1:
-            colorkey = img.get_at((0, 0))
-        img.set_colorkey(colorkey, RLEACCEL)
+        # 시선 기초 보정값
+        x, y = p2
+        x += 50
+        #y += 100
+        if x > 600:
+            x *= 1.15
 
-    if sx != -1 or sy != -1:
-        img = pygame.transform.scale(img, (sx, sy))
-
-    return (img, img.get_rect())
-
-def load_sprite_sheet(
-        s_name,
-        namex,
-        namey,
-        scx = -1,
-        scy = -1,
-        c_key = None,
-        ):
-    fullname = os.path.join('resources', s_name)
-    sh = pygame.image.load(fullname)
-    sh = sh.convert()
-
-    sh_rect = sh.get_rect()
-
-    sprites = []
-
-    sx = sh_rect.width/ namex
-    sy = sh_rect.height/ namey
-
-    for i in range(0, namey):
-        for j in range(0, namex):
-            rect = pygame.Rect((j*sx,i*sy,sx,sy))
-            img = pygame.Surface(rect.size)
-            img = img.convert()
-            img.blit(sh,(0,0),rect)
-
-            if c_key is not None:
-                if c_key == -1:
-                    c_key = img.get_at((0, 0))
-                img.set_colorkey(c_key, RLEACCEL)
-
-            if scx != -1 or scy != -1:
-                img = pygame.transform.scale(img, (scx, scy))
-
-            sprites.append(img)
-
-    sprite_rect = sprites[0].get_rect()
-
-    return sprites,sprite_rect
-
-def gameover_display_message(rbtn_image, gmo_image):
-    rbtn_rect = rbtn_image.get_rect()
-    rbtn_rect.centerx = width_screen / 2
-    rbtn_rect.top = height_screen * 0.52
-
-    gmo_rect = gmo_image.get_rect()
-    gmo_rect.centerx = width_screen / 2
-    gmo_rect.centery = height_screen * 0.35
-
-    screen_layout_display.blit(rbtn_image, rbtn_rect)
-    screen_layout_display.blit(gmo_image, gmo_rect)
-
-def extractDigits(num):
-    if num > -1:
-        d = []
-        i = 0
-        while(num / 10 != 0):
-            d.append(num % 10)
-            num = int(num / 10)
-
-        d.append(num % 10)
-        for i in range(len(d),5):
-            d.append(0)
-        d.reverse()
-        return d
-
-class Dino():
-    def __init__(self, sx=-1, sy=-1):
-        self.imgs, self.rect = load_sprite_sheet('dino.png', 5, 1, sx, sy, -1)
-        self.imgs1, self.rect1 = load_sprite_sheet('dino_ducking.png', 2, 1, 59, sy, -1)
-        self.rect.bottom = int(0.98 * height_screen)
-        self.rect.left = width_screen / 15
-        self.image = self.imgs[0]
-        self.index = 0
-        self.counter = 0
-        self.score = 0
-        self.jumping = False
-        self.dead = False
-        self.ducking = False
-        self.blinking = False
-        self.movement = [0,0]
-        self.jumpSpeed = 11.5
-
-        self.stand_position_width = self.rect.width
-        self.duck_position_width = self.rect1.width
-
-    def draw(self):
-        screen_layout_display.blit(self.image, self.rect)
-
-    def checkbounds(self):
-        if self.rect.bottom > int(0.98 * height_screen):
-            self.rect.bottom = int(0.98 * height_screen)
-            self.jumping = False
-
-    def update(self):
-        if self.jumping:
-            self.movement[1] = self.movement[1] + gravity
-
-        if self.jumping:
-            self.index = 0
-        elif self.blinking:
-            if self.index == 0:
-                if self.counter % 400 == 399:
-                    self.index = (self.index + 1)%2
-            else:
-                if self.counter % 20 == 19:
-                    self.index = (self.index + 1)%2
-
-        elif self.ducking:
-            if self.counter % 5 == 0:
-                self.index = (self.index + 1)%2
+        if y > 300:
+            y *= 2.1
         else:
-            if self.counter % 5 == 0:
-                self.index = (self.index + 1)%2 + 2
+            y *= 2.0   
 
-        if self.dead:
-           self.index = 4
 
-        if not self.ducking:
-            self.image = self.imgs[self.index]
-            self.rect.width = self.stand_position_width
-        else:
-            self.image = self.imgs1[(self.index) % 2]
-            self.rect.width = self.duck_position_width
+        # calibration 보정
 
-        self.rect = self.rect.move(self.movement)
-        self.checkbounds()
+        group.update(x, y)
 
-        if not self.dead and self.counter % 7 == 6 and self.blinking == False:
-            self.score += 1
-            # if self.score % 100 == 0 and self.score != 0:
-            #     if pygame.mixer.get_init() != None:
-            #         checkPoint_sound.play()
+        if calibration_x != 0 and x > 0:
+            x *= 1.0 + calibration_x / x
 
-        self.counter = (self.counter + 1)
+        if calibration_y != 0 and y > 0:
+            y *= 1.0 + calibration_y / y
 
-class Cactus(pygame.sprite.Sprite):
-    def __init__(self, speed=5, sx=-1, sy=-1):
-        pygame.sprite.Sprite.__init__(self,self.containers)
-        self.imgs, self.rect = load_sprite_sheet('cactus-small.png', 3, 1, sx, sy, -1)
-        self.rect.bottom = int(0.98 * height_screen)
-        self.rect.left = width_screen + self.rect.width
-        self.image = self.imgs[random.randrange(0, 3)]
-        self.movement = [-1*speed,0]
 
-    def draw(self):
-        screen_layout_display.blit(self.image, self.rect)
 
-    def update(self):
-        self.rect = self.rect.move(self.movement)
 
-        if self.rect.right < 0:
-            self.kill()
+        list = group.sprites()
+        setattr(list[tar],'target',True)
+
+
+
+
+
+        myfont = pygame.font.SysFont(None,30)
+
+
+        numbers = [
+            myfont.render(str(clicknum[0]),True,white),
+            myfont.render(str(clicknum[1]),True,white),
+            myfont.render(str(clicknum[2]),True,white),
+            myfont.render(str(clicknum[3]),True,white),
+            myfont.render(str(clicknum[4]),True,white),
+            myfont.render(str(clicknum[5]),True,white),
+            myfont.render(str(clicknum[6]),True,white),
+            myfont.render(str(clicknum[7]),True,white),
+            myfont.render(str(clicknum[8]),True,white),
+            myfont.render(str(clicknum[9]),True,white),
+            myfont.render(str(clicknum[10]),True,white),
+            myfont.render(str(clicknum[11]),True,white),
+            myfont.render(str(clicknum[12]),True,white)
+        ]
+
+
+
+
+
+        mouse_buttons = {1: "left", 2: "middle", 3: "right"}
+        button_name = lambda b: mouse_buttons[b] if b in mouse_buttons else "#" + str(b)
+        text = "Wait for event ..."
+
+        # pygame.time.Clock().tick(60)
+
+
+        clock.tick(60)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+
+        key_event = pygame.key.get_pressed()
+        if key_event[pygame.K_ESCAPE]:      # ESC 입력시 프로그램 종료
+            sys.exit()
+
+
+
+
+
+        pos_x, pos_y = x, y
+        print(x, y)
+        screen.fill(black)
+        group.draw(window)
+        pygame.draw.circle(screen, white, (pos_x, pos_y), 10)
+        screen.blit(numbers[1], ((window.get_width() // 4)+15,(window.get_height() // 4)+15))
+        screen.blit(numbers[2], ((window.get_width() // 4)*3 -35,(window.get_height() // 4)+15))
+        screen.blit(numbers[3], ((window.get_width() // 4)+15,(window.get_height() // 4)*3 - 35))
+        screen.blit(numbers[4], ((window.get_width() // 4)*3 -35, (window.get_height() // 4)*3 - 35))
+        screen.blit(numbers[0], ((window.get_width() // 2)-10, (window.get_height() // 2)-10))
+        screen.blit(numbers[5], (15, 15))
+        screen.blit(numbers[10], (15, window.get_height()-35))
+        screen.blit(numbers[7], (window.get_width()-35, 15))
+        screen.blit(numbers[6], ((window.get_width() // 2) -10, 15))
+        screen.blit(numbers[11], ((window.get_width() // 2) -10, window.get_height()-35))
+        screen.blit(numbers[8], (15, (window.get_height()//2)-10))
+        screen.blit(numbers[9], ((window.get_width()-35, (window.get_height()//2)-10)))
+        screen.blit(numbers[12], (window.get_width()-35, window.get_height()-35))
+
+        pygame.display.update()
+
+pygame.quit()
