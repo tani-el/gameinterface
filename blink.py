@@ -1,9 +1,10 @@
 # Importing the required dependencies
 #imutils, dlib, cmake, scipy 설치 해야함
+# Importing the required dependencies
 import cv2 # for video rendering
 import dlib # for face and landmark detection
-import imutils 
-# for calculating dist b/w the eye landmarks - 설치 필요
+import imutils
+# for calculating dist b/w the eye landmarks
 from scipy.spatial import distance as dist
 # to get the landmark ids of the left and right eyes
 # you can do this manually too
