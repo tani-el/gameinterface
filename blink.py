@@ -1,7 +1,7 @@
 # Importing the required dependencies
 #imutils, dlib, cmake, scipy 설치 해야함
 # Importing the required dependencies
-import cv2 # for video rendering
+import cv2 as cv# for video rendering
 import dlib # for face and landmark detection
 import imutils
 # for calculating dist b/w the eye landmarks
@@ -12,7 +12,7 @@ from imutils import face_utils
 
 # from imutils import
 
-cam = cv2.VideoCapture(0)
+cam = cv.VideoCapture(0)
 
 # defining a function to calculate the EAR
 def calculate_EAR(eye):
@@ -46,9 +46,9 @@ while 1:
 
 	# If the video is finished then reset it
 	# to the start
-	if cam.get(cv2.CAP_PROP_POS_FRAMES) == cam.get(
-			cv2.CAP_PROP_FRAME_COUNT):
-		cam.set(cv2.CAP_PROP_POS_FRAMES, 0)
+	if cam.get(cv.CAP_PROP_POS_FRAMES) == cam.get(
+			cv.CAP_PROP_FRAME_COUNT):
+		cam.set(cv.CAP_PROP_POS_FRAMES, 0)
 
 	else:
 		_, frame = cam.read()
@@ -56,7 +56,7 @@ while 1:
 
 		# converting frame to gray scale to
 		# pass to detector
-		img_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+		img_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
 		# detecting the faces
 		faces = detector(img_gray)
@@ -84,14 +84,13 @@ while 1:
 				count_frame += 1 # incrementing the frame count
 			else:
 				if count_frame >= succ_frame:
-					cv2.putText(frame, 'Blink Detected', (30, 30),
-								cv2.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
+					cv.putText(frame, 'Blink Detected', (30, 30),
+								cv.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
 				else:
 					count_frame = 0
 
-		cv2.imshow("Video", frame)
-		if cv2.waitKey(5) & 0xFF == ord('q'):
+		cv.imshow("Video", frame)
+		if cv.waitKey(5) & 0xFF == ord('q'):
 			break
 
-cam.release()
-cv2.destroyAllWindows()
+
