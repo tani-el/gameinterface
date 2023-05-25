@@ -5,6 +5,21 @@ import pygame
 import sys
 import random
 
+
+
+
+import dlib # for face and landmark detection
+import imutils
+# for calculating dist b/w the eye landmarks
+from scipy.spatial import distance as dist
+# to get the landmark ids of the left and right eyes
+# you can do this manually too
+from imutils import face_utils
+
+
+
+
+
 # first commit
 
 SCREEN_WIDTH = 800
@@ -172,6 +187,77 @@ clock = pygame.time.Clock()
 
 
 
+# defining a function to calculate the EAR
+def calculate_EAR(eye):
+
+	# calculate the vertical distances
+	y1 = dist.euclidean(eye[1], eye[5])
+	y2 = dist.euclidean(eye[2], eye[4])
+
+	# calculate the horizontal distance
+	x1 = dist.euclidean(eye[0], eye[3])
+
+	# calculate the EAR
+	EAR = (y1+y2) / x1
+	return EAR
+
+
+
+# Variables
+blink_thresh = 0.45
+succ_frame = 2
+count_frame = 0
+
+# Eye landmarks
+(L_start, L_end) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
+(R_start, R_end) = face_utils.FACIAL_LANDMARKS_IDXS['right_eye']
+
+# Initializing the Models for Landmark and
+# face Detection
+detector = dlib.get_frontal_face_detector()
+landmark_predict = dlib.shape_predictor(
+	'shape_predictor_68_face_landmarks.dat')
+
+def detect_blink(frame):
+
+    # Convert the frame to grayscale.
+    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+
+    # Detect the faces in the frame.
+    faces = detector(gray)
+
+    # Loop over the faces.
+    for face in faces:
+
+        # Landmark detection.
+        shape = landmark_predict(gray, face)
+
+        # Convert the shape class directly to a list of (x,y) coordinates.
+        shape = face_utils.shape_to_np(shape)
+
+        # Extract the left and right eye landmarks.
+        left_eye = shape[L_start:L_end]
+        right_eye = shape[R_start:R_end]
+
+        # Calculate the EAR
+        left_EAR = calculate_EAR(left_eye)
+        right_EAR = calculate_EAR(right_eye)
+
+        # Calculate the average EAR.
+        avg_ear = (left_EAR + right_EAR) / 2
+
+        # Check if the average EAR is less than the blink threshold.
+        if avg_ear < blink_thresh:
+
+            # Blink detected!
+            return True
+
+        # No blink detected.
+        return False
+
+
+
+
 with mp_face_mesh.FaceMesh(max_num_faces=1,
                            refine_landmarks=True,
                            min_detection_confidence=0.5,
@@ -261,8 +347,23 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
             cv.line(frame, tuple((left_eye_center + right_eye_center) // 2), tuple(face_center), (255, 255, 255), 3)
             cv.line(frame, p1, p2, (255, 255, 0), 3)
 
+
+
+
+            # blink
+            # ==============================
+            _, fra = capture.read()
+            fra = imutils.resize(fra, width=640)
+            blink_check = detect_blink(fra)
+            if blink_check:
+                print("blink!!")
+            else:
+                print("Nope")
+            
+
             face_2d = []
             face_3d = []
+            
             
         
 
@@ -381,7 +482,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
         
         
         pos_x, pos_y = x, y
-        print(x, y)
+        #print(x, y)
         screen.fill(black)
         group.draw(window)
         pygame.draw.circle(screen, white, (pos_x, pos_y), 10)
