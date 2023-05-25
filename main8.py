@@ -159,7 +159,13 @@ compensated_angle = [0, 0, 0]
 mp_face_mesh = mp.solutions.face_mesh
 # capture = cv.VideoCapture('sample_vid.mp4')
 capture = cv.VideoCapture(0)
-window = pygame.display.set_mode((800, 800))
+w = capture.get(cv.CAP_PROP_FRAME_WIDTH)
+h = capture.get(cv.CAP_PROP_FRAME_HEIGHT)
+
+#capture.set(cv.CAP_PROP_FRAME_WIDTH, w*2) # 가로
+#capture.set(cv.CAP_PROP_FRAME_HEIGHT, h*2) # 세로
+
+window = pygame.display.set_mode((w, h))
 font40 = pygame.font.SysFont(None, 40)
 clock = pygame.time.Clock()
 
@@ -179,6 +185,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
             break
         img_h, img_w = frame.shape[:2]
         frame = cv.flip(frame, 1)
+        
         image = cv.cvtColor(frame, cv.COLOR_RGB2BGR)
         results = face_mesh.process(image)
         if results.multi_face_landmarks:
@@ -256,6 +263,8 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
 
             face_2d = []
             face_3d = []
+            
+        
 
         cv.imshow('Main', frame)
         key = cv.waitKey(1)
