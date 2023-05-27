@@ -4,7 +4,7 @@ import pygame
 import sys
 import random
 import main8 as M
-
+# 오류 발생중
 
 
 clock = pygame.time.Clock()
