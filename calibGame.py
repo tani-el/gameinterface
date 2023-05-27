@@ -6,6 +6,7 @@ import random
 import main8 as M
 
 
+
 clock = pygame.time.Clock()
 
 SCREEN_WIDTH = 800
@@ -189,6 +190,9 @@ if y > 300:
     y *= 2.1
 else:
     y *= 2.0   
+
+
+
 
 
 # calibration 보정
