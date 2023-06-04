@@ -15,10 +15,12 @@ from imutils import face_utils
 # first commit
 
 
-def calibration(x,y):
-    global calibration_x, calibration_y
+"""def calibration(x,y):
+    global calibration_x, calibration_y"""
     
 keyInput = [True, True, True, True, True]
+
+
 class SpriteObject(pygame.sprite.Sprite):
     def __init__(self, x, y, color, target):
         super().__init__()
@@ -36,89 +38,36 @@ class SpriteObject(pygame.sprite.Sprite):
         self.hover = False
         self.x = x
         self.y = y
+        
     def get_x(self):
         return self.x
     def get_y(self):
         return self.y
        
-    def update(self, x, y):
-        mouse_pos = x, y
-        global keyInput
-        # 현재 키보드 상태 감지
-        keys = pygame.key.get_pressed()
-        if self.target == True:
-            self.image = self.hover_image2
-        else:
-            self.image = self.original_image
-        global calibration_x, calibration_y
-        # 스페이스바 입력 감지 예시
-        if keys[pygame.K_SPACE]:  # 스페이스바가 눌렸을 때
-            hover = self.rect.collidepoint(mouse_pos)
-            self.hover = hover
+
             
-            if hover:
-                if self.target == True:
-                    self.image = self.hover_image
-                    self.target = False
-                    tar = random.choice(pygame_Calib.num)-1
-                else:
-                    self.image = self.hover_image
-                
-            else:
-                self.image = self.original_image
-                
-        
-        elif keys[pygame.K_1] and keyInput[0]:
-            
-            calibration_x, calibration_y = 0, 0
-            calibration_x, calibration_y = pygame_Calib.window.get_width() // 2 - x, pygame_Calib.window.get_height() // 2 - y                # 중앙 보정 KEY_1
-            #print("보정 좌표값 : ", calibration_x, calibration_y)
-            keyInput[0] = False
-        elif keys[pygame.K_2] and keyInput[1]:
-            #global calibration_x, calibration_yx
-            calibration_x, calibration_y = 0, 0
-            calibration_x, calibration_y = (pygame_Calib.window.get_width()//4) + 25 -x,(pygame_Calib.window.get_height() // 4)+25 - y        # 중간 왼위 보정 KEY_2
-            #print("보정 좌표값 : ", calibration_x, calibration_y)
-            keyInput[1] = False
-        elif keys[pygame.K_3] and keyInput[2]:
-            #global calibration_x, calibration_yx
-            calibration_x, calibration_y = 0, 0
-            calibration_x, calibration_y = (pygame_Calib.window.get_width() // 4)*3 -25 -x,(pygame_Calib.window.get_height() // 4)+25 -y      # 중간 오위 보정 KEY_3
-            #print("보정 좌표값 : ", calibration_x, calibration_y)
-            keyInput[2] = False
-        
-        elif keys[pygame.K_4] and keyInput[3]:
-            #global calibration_x, calibration_yx
-            calibration_x, calibration_y = 0, 0
-            calibration_x, calibration_y = (pygame_Calib.window.get_width() // 4)+25 -x,(pygame_Calib.window.get_height() // 4)*3 - 25 -y      # 중간 왼아래 보정 KEY_4
-            #print("보정 좌표값 : ", calibration_x, calibration_y)
-            keyInput[3] = False
-        elif keys[pygame.K_5] and keyInput[4]:
-            #global calibration_x, calibration_yx
-            calibration_x, calibration_y = 0, 0
-            calibration_x, calibration_y = (pygame_Calib.window.get_width() // 4)*3 -25 -x, (pygame_Calib.window.get_height() // 4)*3 - 25 -y      # 중간 오아래 보정 KEY_5
-            #print("보정 좌표값 : ", calibration_x, calibration_y)
-            keyInput[4] = False
      
 class pygame_Calib():
-    def __init__(self):
+    def __init__(self,x,y):
         self.white = (255, 255, 255)
         self.black = (0, 0, 0)
         self.yellow = (255,255,0)
-        self.calibration_x, self.calibration_y = 0, 0
+        global calibration_x, calibration_y 
+        calibration_x, calibration_y= 0, 0
         self.num = [1,2,3,4,5,6,7,8,9,10,11,12,13]
         self.clicknum = [1,2,3,4,5,6,7,8,9,10,11,12,13]
         random.shuffle(self.num)
+        self.x = x
+        self.y = y
+        
+        pygame.init()
+        pygame.display.set_caption("Simple PyGame Example")
         
         self.clock = pygame.time.Clock()
         
         self.window = pygame.display.set_mode((w, h))
-        self.font40 = pygame.font.SysFont(None, 40)
+        #self.font40 = pygame.font.SysFont(None, 40)
         self.clock = pygame.time.Clock()
-        
-        self.window.fill(self.black)
-        self.group.draw(self.window)
-        self.circle(self.window, self.white, (pos_x, pos_y), 10)
         
         self.sprite_object = SpriteObject(*self.window.get_rect().center, (128, 128, 0),False)
         self.group = pygame.sprite.Group([
@@ -135,12 +84,17 @@ class pygame_Calib():
             SpriteObject(self.window.get_width() // 2, self.window.get_height()-25, (0, 102, 255),False), #중하
             SpriteObject(25, self.window.get_height()//2, (153, 255, 153),False),  #중좌
             SpriteObject(self.window.get_width()-25, self.window.get_height()//2, (255, 255, 102),False) # 중우
-        ])
+        ])        
         
+        self.window.fill(self.black)
+        self.group.draw(self.window)
+        pygame.draw.circle(self.window, self.white, (pos_x, pos_y), 10)
+        
+
         self.tar = random.choice(self.num)-1
         self.list = self.group.sprites()
         setattr(self.list[self.tar],'target',True)
-        
+        self.group.update()
         myfont = pygame.font.SysFont(None,30)
         
         
@@ -159,25 +113,77 @@ class pygame_Calib():
             myfont.render(str(self.clicknum[11]),True,self.white),
             myfont.render(str(self.clicknum[12]),True,self.white)
         ]
+        self.draw_pygame() 
+        self.update()
         
-    
+    def update(self):
+        mouse_pos = self.x, self.y
+        global keyInput
+        global calibration_x, calibration_y
+        # 현재 키보드 상태 감지
+        keys = pygame.key.get_pressed()
+        if self.target == True:
+            self.image = SpriteObject.hover_image2
+        else:
+            self.image = SpriteObject.original_image
         
+        # 스페이스바 입력 감지 예시
+        if keys[pygame.K_SPACE]:  # 스페이스바가 눌렸을 때
+            hover = SpriteObject.rect.collidepoint(mouse_pos)
+            self.hover = hover
+            
+            if hover:
+                if self.target == True:
+                    self.image = SpriteObject.hover_image
+                    self.target = False
+                    pygame_Calib.tar = random.choice(pygame_Calib.num)-1
+                else:
+                    self.image = SpriteObject.hover_image
+                
+            else:
+                self.image = SpriteObject.original_image
+                
         
+        elif keys[pygame.K_1] and keyInput[0]:
+            
+            calibration_x, calibration_y = 0, 0
+            calibration_x, calibration_y = w // 2 - x, h // 2 - y                # 중앙 보정 KEY_1
+            #print("보정 좌표값 : ", calibration_x, calibration_y)
+            keyInput[0] = False
+        elif keys[pygame.K_2] and keyInput[1]:
+            #global calibration_x, calibration_yx
+            calibration_x, calibration_y = 0, 0
+            calibration_x, calibration_y = (w//4) + 25 -x,(h // 4)+25 - y        # 중간 왼위 보정 KEY_2
+            #print("보정 좌표값 : ", calibration_x, calibration_y)
+            keyInput[1] = False
+        elif keys[pygame.K_3] and keyInput[2]:
+            #global calibration_x, calibration_yx
+            calibration_x, calibration_y = 0, 0
+            calibration_x, calibration_y = (w // 4)*3 -25 -x,(h // 4)+25 -y      # 중간 오위 보정 KEY_3
+            #print("보정 좌표값 : ", calibration_x, calibration_y)
+            keyInput[2] = False
+        
+        elif keys[pygame.K_4] and keyInput[3]:
+            #global calibration_x, calibration_yx
+            calibration_x, calibration_y = 0, 0
+            calibration_x, calibration_y = (w // 4)+25 -x,(h // 4)*3 - 25 -y      # 중간 왼아래 보정 KEY_4
+            #print("보정 좌표값 : ", calibration_x, calibration_y)
+            keyInput[3] = False
+        elif keys[pygame.K_5] and keyInput[4]:
+            #global calibration_x, calibration_yx
+            calibration_x, calibration_y = 0, 0
+            calibration_x, calibration_y = (w // 4)*3 -25 -x, (h // 4)*3 - 25 -y      # 중간 오아래 보정 KEY_5
+            #print("보정 좌표값 : ", calibration_x, calibration_y)
+            keyInput[4] = False
+            
     def draw_pygame(self):
-        pygame.init()
-        pygame.display.set_caption("Simple PyGame Example")
-
+        global calibration_x, calibration_y
         
 
-        self.group.update(x, y)
-        
-        if calibration_x != 0 and x > 0:
-            x *= 1.0 + calibration_x / x
-        if calibration_y != 0 and y > 0:
-            y *= 1.0 + calibration_y / y
-        
-        
-        
+        if calibration_x != 0 and self.x > 0:
+            self.x *= 1.0 + calibration_x / self.x
+        if calibration_y != 0 and self.y > 0:
+            self.y *= 1.0 + calibration_y / self.y
 
         self.window.blit(self.numbers[1], ((self.window.get_width() // 4)+15,(self.window.get_height() // 4)+15))
         self.window.blit(self.numbers[2], ((self.window.get_width() // 4)*3 -35,(self.window.get_height() // 4)+15))
@@ -194,7 +200,9 @@ class pygame_Calib():
         self.window.blit(self.numbers[12], (self.window.get_width()-35, self.window.get_height()-35))
         
         pygame.display.update()
-                        
+        
+    
+                           
 
 pos_x = 200
 pos_y = 200
@@ -414,7 +422,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
         print(x, y)
         #class에서 그리기 위치
         
-        pygame_Calib()
+        pygame_Calib(x,y)
 
 capture.release()
 cv.destroyAllWindows()

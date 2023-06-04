@@ -1,5 +1,3 @@
-import matplotlib
-matplotlib.use("Agg")
 import mediapipe as mp
 import numpy as np
 import cv2 as cv
