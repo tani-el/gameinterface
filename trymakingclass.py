@@ -3,6 +3,7 @@ import numpy as np
 import cv2 as cv
 import pygame
 import sys
+from pygame.locals import *
 import random
 import dlib  # for face and landmark detection
 import imutils
@@ -13,16 +14,18 @@ from scipy.spatial import distance as dist
 from imutils import face_utils
 #import Num_Game as N_Game
 
-# first commit
+
 
 
 """def calibration(x,y):
     global calibration_x, calibration_y"""
 
 keyInput = [True, True, True, True, True]
-num = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+tarnum = [4, 0, 1, 2, 3, 6, 9, 8, 11, 12, 7, 10, 5]
 clicknum = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-random.shuffle(num)
+tar = 0
+
+
 
 
 class SpriteObject(pygame.sprite.Sprite):
@@ -31,17 +34,24 @@ class SpriteObject(pygame.sprite.Sprite):
         self.original_image = pygame.Surface((50, 50), pygame.SRCALPHA)
         pygame.draw.circle(self.original_image, color, (25, 25), 25)
         self.hover_image = pygame.Surface((50, 50), pygame.SRCALPHA)
-        self.hover_image2 = pygame.Surface((50, 50), pygame.SRCALPHA)
+        self.target_image = pygame.Surface((50, 50), pygame.SRCALPHA)
         pygame.draw.circle(self.hover_image, color, (25, 25), 25)
         pygame.draw.circle(self.hover_image, (255, 255, 255), (25, 25), 25, 4)  # 흰색으로 변하는 부분
-        pygame.draw.circle(self.hover_image2, color, (25, 25), 25)
-        pygame.draw.circle(self.hover_image2, (255, 255, 0), (25, 25), 25, 4)
+        pygame.draw.circle(self.target_image, color, (25, 25), 25)
+        pygame.draw.circle(self.target_image, (255, 255, 0), (25, 25), 25, 4)
         self.target = target
-        self.image = self.original_image
+        
+        if self.target == True:
+            self.image = self.target_image
+        else:
+            self.image = self.original_image
+
         self.rect = self.image.get_rect(center=(x, y))
         self.hover = False
         self.x = x
         self.y = y
+        
+        self.update()
 
     def get_x(self):
         return self.x
@@ -49,33 +59,26 @@ class SpriteObject(pygame.sprite.Sprite):
     def get_y(self):
         return self.y
 
-    def new_target(self):
-        self.tar = random.choice(num) - 1
-        setattr(self.list[self.tar], 'target', True)
-
     def update(self):
         mouse_pos = self.x, self.y
         global keyInput
         global calibration_x, calibration_y
+        global tar
+        hover = self.rect.collidepoint(mouse_pos)
+        self.hover = hover
+        self.image = self.hover_image
+        
 
         # 현재 키보드 상태 감지
         keys = pygame.key.get_pressed()
-        if self.target == True:
-            self.image = self.hover_image2
-        else:
-            self.image = self.original_image
-
         # 스페이스바 입력 감지 예시
         if keys[pygame.K_SPACE]:  # 스페이스바가 눌렸을 때
-            hover = self.rect.collidepoint(mouse_pos)
-            self.hover = hover
 
             if hover:
                 if self.target == True:
                     self.image = self.hover_image
                     self.target = False
-                    tar = random.choice(num) - 1
-                    return tar
+                    tar += 1
 
 
                 else:
@@ -116,6 +119,151 @@ class SpriteObject(pygame.sprite.Sprite):
             calibration_x, calibration_y = (w // 4) * 3 - 25 - x, (h // 4) * 3 - 25 - y  # 중간 오아래 보정 KEY_5
             # print("보정 좌표값 : ", calibration_x, calibration_y)
             keyInput[4] = False
+        
+
+class pygame_Calib():
+    
+    def __init__(self,x,y):
+        global tar
+
+        self.white = (255, 255, 255)
+        self.black = (0, 0, 0)
+        self.yellow = (255,255,0)
+        global calibration_x, calibration_y 
+        calibration_x, calibration_y= 0, 0
+
+        self.x = x
+        self.y = y
+        
+        pygame.init()
+        pygame.display.set_caption("Simple PyGame Example")
+        
+        self.clock = pygame.time.Clock()
+        
+        self.window = pygame.display.set_mode((w, h))
+        self.font40 = pygame.font.SysFont(None, 40)
+        self.clock = pygame.time.Clock()
+        
+        self.sprite_object = SpriteObject(*self.window.get_rect().center, (128, 128, 0),False)
+        self.group = pygame.sprite.Group([
+            SpriteObject((self.window.get_width() // 4)+25,(self.window.get_height() // 4)+25, (128, 0, 0),False),
+            SpriteObject((self.window.get_width() // 4)*3 -25,(self.window.get_height() // 4)+25,(0, 128, 0),False), 
+            SpriteObject((self.window.get_width() // 4)+25,(self.window.get_height() // 4)*3 - 25, (0, 0, 128),False),
+            SpriteObject((self.window.get_width() // 4)*3 -25, (self.window.get_height() // 4)*3 - 25, (128, 128, 0),False),
+            SpriteObject(self.window.get_width() // 2, self.window.get_height() // 2, (0, 96, 128),False), #중앙
+            SpriteObject(self.window.get_width()-25, self.window.get_height()-25, (128, 0, 96),False), #우하
+            SpriteObject(25, 25, (64, 0, 128),True), #좌상
+            SpriteObject(25, self.window.get_height()-25, (128, 64, 0),False),#좌하
+            SpriteObject(self.window.get_width()-25, 25, (32, 128, 0),False),#우상
+            SpriteObject(self.window.get_width() // 2, 25, (255, 102, 204),False),#중상
+            SpriteObject(self.window.get_width() // 2, self.window.get_height()-25, (0, 102, 255),False), #중하
+            SpriteObject(25, self.window.get_height()//2, (153, 255, 153),False),  #중좌
+            SpriteObject(self.window.get_width()-25, self.window.get_height()//2, (255, 255, 102),False) # 중우
+        ])        
+        
+        self.window.fill(self.black)
+        self.window.blit(py_frame, (0,0))
+        self.group.draw(self.window)
+        pygame.draw.circle(self.window, self.white, (pos_x, pos_y), 10)
+        
+
+        self.tar = tarnum[tar]
+        self.list = self.group.sprites()
+        setattr(self.list[self.tar],'target',True)
+        self.group.update()
+        myfont = pygame.font.SysFont(None,30)
+        
+        
+        self.numbers = [
+            myfont.render(str(clicknum[0]),True,self.white),
+            myfont.render(str(clicknum[1]),True,self.white),
+            myfont.render(str(clicknum[2]),True,self.white),
+            myfont.render(str(clicknum[3]),True,self.white),
+            myfont.render(str(clicknum[4]),True,self.white),
+            myfont.render(str(clicknum[5]),True,self.white),
+            myfont.render(str(clicknum[6]),True,self.white),
+            myfont.render(str(clicknum[7]),True,self.white),
+            myfont.render(str(clicknum[8]),True,self.white),
+            myfont.render(str(clicknum[9]),True,self.white),
+            myfont.render(str(clicknum[10]),True,self.white),
+            myfont.render(str(clicknum[11]),True,self.white),
+            myfont.render(str(clicknum[12]),True,self.white)
+        ]
+        self.draw_pygame() 
+        
+
+    
+    def draw_pygame(self):
+        global calibration_x, calibration_y
+        
+
+        if calibration_x != 0 and self.x > 0:
+            self.x *= 1.0 + calibration_x / self.x
+        if calibration_y != 0 and self.y > 0:
+            self.y *= 1.0 + calibration_y / self.y
+
+        self.window.blit(self.numbers[1], ((self.window.get_width() // 4)+15,(self.window.get_height() // 4)+15))
+        self.window.blit(self.numbers[2], ((self.window.get_width() // 4)*3 -35,(self.window.get_height() // 4)+15))
+        self.window.blit(self.numbers[3], ((self.window.get_width() // 4)+15,(self.window.get_height() // 4)*3 - 35))
+        self.window.blit(self.numbers[4], ((self.window.get_width() // 4)*3 -35, (self.window.get_height() // 4)*3 - 35))
+        self.window.blit(self.numbers[0], ((self.window.get_width() // 2)-10, (self.window.get_height() // 2)-10))
+        self.window.blit(self.numbers[5], (15, 15))
+        self.window.blit(self.numbers[10], (15, self.window.get_height()-35))
+        self.window.blit(self.numbers[7], (self.window.get_width()-35, 15))
+        self.window.blit(self.numbers[6], ((self.window.get_width() // 2) -10, 15))
+        self.window.blit(self.numbers[11], ((self.window.get_width() // 2) -10, self.window.get_height()-35))
+        self.window.blit(self.numbers[8], (15, (self.window.get_height()//2)-10))
+        self.window.blit(self.numbers[9], ((self.window.get_width()-35, (self.window.get_height()//2)-10)))
+        self.window.blit(self.numbers[12], (self.window.get_width()-35, self.window.get_height()-35))
+        
+        
+        pygame.display.update()
+        
+        
+class pygame_Numgame():
+
+    def __init__(self, x, y):
+        
+        self.white = (255, 255, 255)
+        self.black = (0, 0, 0)
+        self.yellow = (255, 255, 0)
+        global calibration_x, calibration_y
+        calibration_x, calibration_y = 0, 0
+
+        self.x = x
+        self.y = y
+
+        self.screen = pygame.display.set_mode((450, 450))
+        pygame.display.set_caption("숫자 클릭 게임")
+
+        # 게임 변수
+        self.score = 0
+
+        # 폰트 설정
+        self.font = pygame.font.Font(None, 36)
+
+        # 숫자 생성
+        self.numbers = random.sample(range(1, 101), 9)
+        self.max_number = max(self.numbers)
+
+        self.is_check = False
+        self.init = 0
+        self.game_count = 0  # 게임 횟수 변수
+
+        # 결과 화면 설정
+        self.result_screen = pygame.display.set_mode((450, 450))
+        pygame.display.set_caption("result")
+
+        # 결과 텍스트 생성
+        self.result_text = self.font.render("score: ", True, (0, 0, 0))  # 최종 점수 출력
+        self.result_rect = self.result_text.get_rect(center=(225, 225))
+
+        self.running = True
+
+        self.draw_pygame()
+        self.update_numgame()
+        
+    def update_numgame(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
@@ -146,58 +294,8 @@ class SpriteObject(pygame.sprite.Sprite):
                 self.running = False
                 self.result_text = self.font.render("score: " + str(self.score), True, (0, 0, 0))  # 최종 점수 출력
 
-
-class pygame_Calib():
-
-    def __init__(self, x, y):
-
-        self.white = (255, 255, 255)
-        self.black = (0, 0, 0)
-        self.yellow = (255, 255, 0)
-        global calibration_x, calibration_y
-        calibration_x, calibration_y = 0, 0
-
-        self.x = x
-        self.y = y
-
-        pygame.init()
-        pygame.display.set_caption("Simple PyGame Example")
-        self.screen = pygame.display.set_mode((450, 450))
-        pygame.display.set_caption("숫자 클릭 게임")
-
-        # 게임 변수
-        self.score = 0
-
-        # 폰트 설정
-        self.font = pygame.font.Font(None, 36)
-
-        # 숫자 생성
-        self.numbers = random.sample(range(1, 101), 9)
-        self.max_number = max(self.numbers)
-
-        self.is_check = False
-        self.init = 0
-        self.game_count = 0  # 게임 횟수 변수
-
-        # 결과 화면 설정
-        self.result_screen = pygame.display.set_mode((450, 450))
-        pygame.display.set_caption("result")
-
-        # 결과 텍스트 생성
-        self.result_text = self.font.render("score: ", True, (0, 0, 0))  # 최종 점수 출력
-        self.result_rect = self.result_text.get_rect(center=(225, 225))
-
-        self.running = True
-
-        self.draw_pygame()
-
     def draw_pygame(self):
-        global calibration_x, calibration_y
 
-        if calibration_x != 0 and self.x > 0:
-            self.x *= 1.0 + calibration_x / self.x
-        if calibration_y != 0 and self.y > 0:
-            self.y *= 1.0 + calibration_y / self.y
         self.screen.fill((255, 255, 255))
         self.number_rects = []
         for i, number in enumerate(self.numbers):
@@ -214,6 +312,7 @@ class pygame_Calib():
 
         # 화면 업데이트
         pygame.display.flip()
+        
     def run(self):
         while self.running:
             self.update()
@@ -232,7 +331,7 @@ class pygame_Calib():
                     running = False
 
         # 게임 종료
-        pygame.quit()
+        
 
 pos_x = 200
 pos_y = 200
@@ -408,7 +507,14 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
             face_2d = []
             face_3d = []
 
-        cv.imshow('Main', frame)
+
+
+        #cv.imshow('Main', frame)
+        py_frame = np.rot90(frame)
+        py_frame = np.flip(py_frame,0)
+        py_frame = cv.cvtColor(py_frame, cv.COLOR_RGB2BGR)
+        py_frame = pygame.surfarray.make_surface(py_frame)
+        
         key = cv.waitKey(1)
         if (key == ord('q')):
             break
@@ -434,6 +540,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
         # class에서 그리기 위치
 
         pygame_Calib(x, y)
+        #pygame_Numgame(x,y)
 capture.release()
 cv.destroyAllWindows()
 pygame.quit()
