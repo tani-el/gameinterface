@@ -9,8 +9,9 @@ from scipy.spatial import distance as dist
 # to get the landmark ids of the left and right eyes
 # you can do this manually too
 from imutils import face_utils
-
-
+import Num_Game
+import threading
+import queue
 # for test
 
 
@@ -193,7 +194,25 @@ def detect_blink(frame):
         # No blink detected.
         return False
 
+# Num_Game 을 돌리기 위한 코드-------------------
+game = Num_Game.NumGame(pos_x, pos_y)
 
+# Create a queue for communication between threads
+coord_queue = queue.Queue()
+
+def run_game():
+    while True:
+        # Check if there are updated coordinates in the queue
+        if not coord_queue.empty():
+            pos_x, pos_y = coord_queue.get()
+            game.update_position(pos_x, pos_y)
+        
+        game.run()
+
+# Create and start the game thread
+game_thread = threading.Thread(target=run_game)
+game_thread.start()
+#-----------------------------------------------
 
 
 with mp_face_mesh.FaceMesh(max_num_faces=1,
@@ -316,10 +335,41 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
         # ------
         # pygame
         # ------
+        x, y = p2
+        x += 50
+        # y += 100
+        if x > 600:
+            x *= 1.15
+        if y > 300:
+            y *= 2.1
+        else:
+            y *= 2.0
 
+        pos_x, pos_y = x, y
+        print(x, y)
         
-        
-        py.draw_Game()
+        # Num_Game 을 돌리기 위해 queue에다 넣어주고 threading함
+        # Num_Game 을 돌리기 위한 코드
+        if count_frame == succ_frame:
+            count_frame = 0
+            if detect_blink(frame):
+                pos_x = np.random.randint(0, w)
+                pos_y = np.random.randint(0, h)
+                game.set_target(pos_x, pos_y)
+                # Add updated coordinates to the queue
+                coord_queue.put((pos_x, pos_y))
+        else:
+            count_frame += 1
+
+
+
+# Signal the game thread to exit
+# Num_Game 을 돌리기 위한 코드
+game_thread.join()
+
+# Cleanup the game resources
+# Num_Game 을 돌리기 위한 코드
+game.cleanup()
 
 
 
