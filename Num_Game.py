@@ -1,8 +1,11 @@
 import pygame
 import random
+import threading
+import time
+
 
 class NumGame:
-    def __init__(self):
+    def __init__(self, x, y):
         # 게임 초기화
         pygame.init()
 
@@ -107,5 +110,5 @@ class NumGame:
         pygame.quit()
 
 # 게임 시작
-game = NumGame()
-game.run()
+# game = NumGame()
+# game.run()
