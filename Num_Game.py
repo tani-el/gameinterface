@@ -3,6 +3,7 @@ import random
 import threading
 import time
 
+window = pygame.display.set_mode((800, 800))
 
 class NumGame:
     def __init__(self, x, y):
@@ -73,7 +74,7 @@ class NumGame:
 
     def draw(self):
         # 화면 초기화
-        self.screen.fill((255, 255, 255))
+        self.screen.fill((0, 0, 0))
 
         # 숫자 그리기
         self.number_rects = []
@@ -88,6 +89,10 @@ class NumGame:
         # 점수 그리기
         score_text = self.font.render("Score: " + str(self.score), True, (0, 0, 0))
         self.screen.blit(score_text, (10, 10))
+
+        # 커서 그리기
+        pos_x, pos_y = self.x, self.y
+        pygame.draw.circle(window, (255, 255, 255), (pos_x, pos_y), 10)
 
         # 화면 업데이트
         pygame.display.flip()
