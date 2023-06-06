@@ -86,13 +86,14 @@ class NumGame:
             self.screen.blit(number_text, number_rect)
             self.number_rects.append(rect)
 
-        # 점수 그리기
-        score_text = self.font.render("Score: " + str(self.score), True, (0, 0, 0))
-        self.screen.blit(score_text, (10, 10))
-
         # 커서 그리기
         pos_x, pos_y = self.x, self.y
         pygame.draw.circle(window, (255, 255, 255), (pos_x, pos_y), 10)
+        pygame.mouse.set_pos(pos_x, pos_y)
+
+        # 점수 그리기
+        score_text = self.font.render("Score: " + str(self.score), True, (255, 255, 255))
+        self.screen.blit(score_text, (10, 10))
 
         # 화면 업데이트
         pygame.display.flip()
@@ -106,11 +107,11 @@ class NumGame:
             self.update()
             self.draw()
             # print(self.x, self.y)
+
         # 결과 화면 업데이트
         self.result_screen.fill((255, 255, 255))
         self.result_screen.blit(self.result_text, self.result_rect)
         pygame.display.flip()
-
         # 결과 화면 유지
         running = True
         while running:
