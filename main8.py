@@ -70,9 +70,9 @@ def calculate_EAR(eye):
 
 
 # Variables
-blink_thresh = 0.45
+blink_thresh = 0.45 - 0.05
 succ_frame = 2
-
+count_frame = 0
 
 # Eye landmarks
 (L_start, L_end) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
@@ -85,9 +85,10 @@ landmark_predict = dlib.shape_predictor(
 	'shape_predictor_68_face_landmarks.dat')
 
 
-def detect_blink(frame):
-    count_frame = 0
-
+def detect_blink(frame, real_frame):
+    global count_frame
+    # print(count_frame)
+    
     # Convert the frame to grayscale.
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
@@ -113,19 +114,22 @@ def detect_blink(frame):
 
         # Calculate the average EAR.
         avg_ear = (left_EAR + right_EAR) / 2
+        
 
         # Check if the average EAR is less than the blink threshold.
         if avg_ear < blink_thresh:
             count_frame += 1 # incrementing the frame count
-        
+            cv.putText(real_frame, 'Blink!', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (0, 0, 255), 1)        
+            return True
+
         else:
             if count_frame >= succ_frame:
-                cv.putText(frame, 'Blink Detected', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
+                cv.putText(real_frame, 'Blink Detecting...', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                 return False
             else:
                 count_frame = 0
-                return True
-
+                cv.putText(real_frame, 'Loading Detecting...!', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 1)
+                return False
 
 # Num_Game 을 돌리기 위한 코드-------------------
 game = Num_Game.NumGame(pos_x, pos_y)
@@ -242,10 +246,11 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
 
             # blink
             # ==============================
+            # frame
             _, fra = capture.read()
             fra = imutils.resize(fra, width=640)
-            blink_check = detect_blink(fra)
-            if not blink_check:
+            blink_check = detect_blink(fra, frame)
+            if blink_check:
                 print("blink!!")
             else:
                 print("Nope")
