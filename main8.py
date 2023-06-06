@@ -48,8 +48,6 @@ capture = cv.VideoCapture(0)
 w = capture.get(cv.CAP_PROP_FRAME_WIDTH)
 h = capture.get(cv.CAP_PROP_FRAME_HEIGHT)
 
-#capture.set(cv.CAP_PROP_FRAME_WIDTH, w*2) # 가로
-#capture.set(cv.CAP_PROP_FRAME_HEIGHT, h*2) # 세로
 
 
 
@@ -74,7 +72,7 @@ def calculate_EAR(eye):
 # Variables
 blink_thresh = 0.45
 succ_frame = 2
-count_frame = 0
+
 
 # Eye landmarks
 (L_start, L_end) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
@@ -86,7 +84,9 @@ detector = dlib.get_frontal_face_detector()
 landmark_predict = dlib.shape_predictor(
 	'shape_predictor_68_face_landmarks.dat')
 
+
 def detect_blink(frame):
+    count_frame = 0
 
     # Convert the frame to grayscale.
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
@@ -116,83 +116,16 @@ def detect_blink(frame):
 
         # Check if the average EAR is less than the blink threshold.
         if avg_ear < blink_thresh:
+            count_frame += 1 # incrementing the frame count
+        
+        else:
+            if count_frame >= succ_frame:
+                cv.putText(frame, 'Blink Detected', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
+                return False
+            else:
+                count_frame = 0
+                return True
 
-            # Blink detected!
-            return True
-
-        # No blink detected.
-        return False
-
-
-
-
-# defining a function to calculate the EAR
-def calculate_EAR(eye):
-
-	# calculate the vertical distances
-	y1 = dist.euclidean(eye[1], eye[5])
-	y2 = dist.euclidean(eye[2], eye[4])
-
-	# calculate the horizontal distance
-	x1 = dist.euclidean(eye[0], eye[3])
-
-	# calculate the EAR
-	EAR = (y1+y2) / x1
-	return EAR
-
-
-
-# Variables
-blink_thresh = 0.45
-succ_frame = 2
-count_frame = 0
-
-# Eye landmarks
-(L_start, L_end) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
-(R_start, R_end) = face_utils.FACIAL_LANDMARKS_IDXS['right_eye']
-
-# Initializing the Models for Landmark and
-# face Detection
-detector = dlib.get_frontal_face_detector()
-landmark_predict = dlib.shape_predictor(
-	'shape_predictor_68_face_landmarks.dat')
-
-def detect_blink(frame):
-
-    # Convert the frame to grayscale.
-    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-
-    # Detect the faces in the frame.
-    faces = detector(gray)
-
-    # Loop over the faces.
-    for face in faces:
-
-        # Landmark detection.
-        shape = landmark_predict(gray, face)
-
-        # Convert the shape class directly to a list of (x,y) coordinates.
-        shape = face_utils.shape_to_np(shape)
-
-        # Extract the left and right eye landmarks.
-        left_eye = shape[L_start:L_end]
-        right_eye = shape[R_start:R_end]
-
-        # Calculate the EAR
-        left_EAR = calculate_EAR(left_eye)
-        right_EAR = calculate_EAR(right_eye)
-
-        # Calculate the average EAR.
-        avg_ear = (left_EAR + right_EAR) / 2
-
-        # Check if the average EAR is less than the blink threshold.
-        if avg_ear < blink_thresh:
-
-            # Blink detected!
-            return True
-
-        # No blink detected.
-        return False
 
 # Num_Game 을 돌리기 위한 코드-------------------
 game = Num_Game.NumGame(pos_x, pos_y)
@@ -205,7 +138,7 @@ def run_game():
         # Check if there are updated coordinates in the queue
         if not coord_queue.empty():
             pos_x, pos_y = coord_queue.get()
-            game.update_position(pos_x, pos_y)
+            game.set_target(pos_x, pos_y)
         
         game.run()
 
@@ -312,7 +245,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
             _, fra = capture.read()
             fra = imutils.resize(fra, width=640)
             blink_check = detect_blink(fra)
-            if blink_check:
+            if not blink_check:
                 print("blink!!")
             else:
                 print("Nope")
@@ -346,20 +279,16 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
             y *= 2.0
 
         pos_x, pos_y = x, y
-        print(x, y)
+        # print(x, y)
         
         # Num_Game 을 돌리기 위해 queue에다 넣어주고 threading함
         # Num_Game 을 돌리기 위한 코드
-        if count_frame == succ_frame:
-            count_frame = 0
-            if detect_blink(frame):
-                pos_x = np.random.randint(0, w)
-                pos_y = np.random.randint(0, h)
-                game.set_target(pos_x, pos_y)
-                # Add updated coordinates to the queue
-                coord_queue.put((pos_x, pos_y))
-        else:
-            count_frame += 1
+
+        game.set_target(pos_x, pos_y)
+        # Add updated coordinates to the queue
+        coord_queue.put((pos_x, pos_y))
+
+
 
 
 

@@ -13,6 +13,9 @@ class NumGame:
         self.screen = pygame.display.set_mode((450, 450))
         pygame.display.set_caption("숫자 클릭 게임")
 
+        # x, y 좌표
+        self.x, self.y = x, y
+
         # 게임 변수
         self.score = 0
 
@@ -89,11 +92,15 @@ class NumGame:
         # 화면 업데이트
         pygame.display.flip()
 
+    # x, y 좌표
+    def set_target(self, x, y):
+        self.x, self.y = x, y
+
     def run(self):
         while self.running:
             self.update()
             self.draw()
-
+            # print(self.x, self.y)
         # 결과 화면 업데이트
         self.result_screen.fill((255, 255, 255))
         self.result_screen.blit(self.result_text, self.result_rect)
