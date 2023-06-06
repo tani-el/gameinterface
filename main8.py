@@ -10,8 +10,10 @@ from scipy.spatial import distance as dist
 # you can do this manually too
 from imutils import face_utils
 import Num_Game
+import pygame
 import threading
 import queue
+import time
 # for test
 
 
@@ -56,16 +58,16 @@ h = capture.get(cv.CAP_PROP_FRAME_HEIGHT)
 # defining a function to calculate the EAR
 def calculate_EAR(eye):
 
-	# calculate the vertical distances
-	y1 = dist.euclidean(eye[1], eye[5])
-	y2 = dist.euclidean(eye[2], eye[4])
+   # calculate the vertical distances
+   y1 = dist.euclidean(eye[1], eye[5])
+   y2 = dist.euclidean(eye[2], eye[4])
 
-	# calculate the horizontal distance
-	x1 = dist.euclidean(eye[0], eye[3])
+   # calculate the horizontal distance
+   x1 = dist.euclidean(eye[0], eye[3])
 
-	# calculate the EAR
-	EAR = (y1+y2) / x1
-	return EAR
+   # calculate the EAR
+   EAR = (y1+y2) / x1
+   return EAR
 
 
 
@@ -82,7 +84,7 @@ succ_frame = 2
 # face Detection
 detector = dlib.get_frontal_face_detector()
 landmark_predict = dlib.shape_predictor(
-	'shape_predictor_68_face_landmarks.dat')
+   'shape_predictor_68_face_landmarks.dat')
 
 
 def detect_blink(frame):
@@ -141,6 +143,24 @@ def run_game():
             game.set_target(pos_x, pos_y)
         
         game.run()
+    # 점수판 함수 데모 제작중
+'''    
+        Num_Game.result_screen.fill((255, 255, 255))
+        #Num game 점수
+        Num_Game.result_screen.blit(Num_Game.result_text, Num_Game.result_rect)
+        #T-RexRuner 점수(임시)
+        #Dino_Run.result_screen.blit(Dino_Run.result_text, Dino_Run.result_rect)
+        pygame.display.flip()
+        # 결과 화면 유지
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+'''
+
+
+
 
 # Create and start the game thread
 game_thread = threading.Thread(target=run_game)
@@ -247,10 +267,11 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
             blink_check = detect_blink(fra)
             if not blink_check:
                 print("blink!!")
+                pygame.event.post(pygame.event.Event(pygame.MOUSEBUTTONDOWN, button=1))  # 마우스 버튼 누르기
+                time.sleep(0.1)
+                pygame.event.post(pygame.event.Event(pygame.MOUSEBUTTONUP, button=1))  # 마우스 버튼 떼기
             else:
                 print("Nope")
-            
-
             face_2d = []
             face_3d = []
             
