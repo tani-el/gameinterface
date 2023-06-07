@@ -21,9 +21,12 @@ def calibration(x,y):
     global calibration_x, calibration_y
 
 keyInput = [True, True, True, True, True]
-tarnum = [4, 0, 1, 2, 3, 6, 9, 8, 11, 12, 7, 10, 5]
+order = [4, 0, 1, 2, 3, 6, 9, 8, 11, 12, 7, 10, 5]
+calib = [False,False,False,False,False,False,False,False,False,False,False,False,False,]
 clicknum = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 tar = 0
+
+startCalib = False
 
 
 
@@ -79,8 +82,7 @@ class SpriteObject(pygame.sprite.Sprite):
             
             if hover:
                 if self.target == True:
-                    self.image = self.original_image
-                    self.target = False
+                    self.image = self.target_image
                     tar += 1
 
                 else:
@@ -148,19 +150,19 @@ class pygame_Calib():
         
         self.sprite_object = SpriteObject(*self.window.get_rect().center, (128, 128, 0),False)
         self.group = pygame.sprite.Group([
-            SpriteObject((self.window.get_width() // 4)+25,(self.window.get_height() // 4)+25, (128, 0, 0),False),
-            SpriteObject((self.window.get_width() // 4)*3 -25,(self.window.get_height() // 4)+25,(0, 128, 0),False), 
-            SpriteObject((self.window.get_width() // 4)+25,(self.window.get_height() // 4)*3 - 25, (0, 0, 128),False),
-            SpriteObject((self.window.get_width() // 4)*3 -25, (self.window.get_height() // 4)*3 - 25, (128, 128, 0),False),
-            SpriteObject(self.window.get_width() // 2, self.window.get_height() // 2, (0, 96, 128),False), #중앙
-            SpriteObject(self.window.get_width()-25, self.window.get_height()-25, (128, 0, 96),False), #우하
-            SpriteObject(25, 25, (64, 0, 128),False), #좌상
-            SpriteObject(25, self.window.get_height()-25, (128, 64, 0),False),#좌하
-            SpriteObject(self.window.get_width()-25, 25, (32, 128, 0),False),#우상
-            SpriteObject(self.window.get_width() // 2, 25, (255, 102, 204),False),#중상
-            SpriteObject(self.window.get_width() // 2, self.window.get_height()-25, (0, 102, 255),False), #중하
-            SpriteObject(25, self.window.get_height()//2, (153, 255, 153),False),  #중좌
-            SpriteObject(self.window.get_width()-25, self.window.get_height()//2, (255, 255, 102),False) # 중우
+            SpriteObject((self.window.get_width() // 4)+25,(self.window.get_height() // 4)+25, (128, 0, 0),calib[0]),
+            SpriteObject((self.window.get_width() // 4)*3 -25,(self.window.get_height() // 4)+25,(0, 128, 0),calib[1]), 
+            SpriteObject((self.window.get_width() // 4)+25,(self.window.get_height() // 4)*3 - 25, (0, 0, 128),calib[2]),
+            SpriteObject((self.window.get_width() // 4)*3 -25, (self.window.get_height() // 4)*3 - 25, (128, 128, 0),calib[3]),
+            SpriteObject(self.window.get_width() // 2, self.window.get_height() // 2, (0, 96, 128),calib[4]), #중앙
+            SpriteObject(self.window.get_width()-25, self.window.get_height()-25, (128, 0, 96),calib[5]), #우하
+            SpriteObject(25, 25, (64, 0, 128),calib[6]), #좌상
+            SpriteObject(25, self.window.get_height()-25, (128, 64, 0),calib[7]),#좌하
+            SpriteObject(self.window.get_width()-25, 25, (32, 128, 0),calib[8]),#우상
+            SpriteObject(self.window.get_width() // 2, 25, (255, 102, 204),calib[9]),#중상
+            SpriteObject(self.window.get_width() // 2, self.window.get_height()-25, (0, 102, 255),calib[10]), #중하
+            SpriteObject(25, self.window.get_height()//2, (153, 255, 153),calib[11]),  #중좌
+            SpriteObject(self.window.get_width()-25, self.window.get_height()//2, (255, 255, 102),calib[12]) # 중우
         ])        
         
         self.window.fill(self.black)
@@ -169,11 +171,11 @@ class pygame_Calib():
         pygame.draw.circle(self.window, self.white, (pos_x, pos_y), 10)
         
 
-        self.tar = tarnum[tar]
+        self.tar = order[tar]
         self.list = self.group.sprites()
                    
         #self.list[self.tar] 위치의 spriteobject의 target 값을 true로 변경 이거 어떻게 하는지 아시나요...
-        
+        calib[tar] = True
         self.group.update()
         myfont = pygame.font.SysFont(None,30)
         
@@ -193,10 +195,26 @@ class pygame_Calib():
             myfont.render(str(clicknum[11]),True,self.white),
             myfont.render(str(clicknum[12]),True,self.white)
         ]
+        
+        
         self.draw_pygame() 
         
 
-    
+    def calib_guide(self):
+        if startCalib == False:
+            font = pygame.font.Font('freesansbold.ttf', 32)
+            self.window.fill(self.black)
+            font.render('보정 작업을 시작합니다.', True, (255, 255, 255))
+            
+            keys = pygame.key.get_pressed()
+        # 스페이스바 입력 감지 예시
+            if keys[pygame.K_SPACE]:  # 스페이스바가 눌렸을 때 넘어감
+                return
+            
+        elif tar == 12:
+            pass # calib 종료
+            
+            
     def draw_pygame(self):
         global calibration_x, calibration_y
         
@@ -320,6 +338,9 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
                            min_detection_confidence=0.5,
                            min_tracking_confidence=0.5
                            ) as face_mesh:
+    
+    
+    
     while True:
         # if capture.get(cv.CAP_PROP_POS_FRAMES) == capture.get(cv.CAP_PROP_FRAME_COUNT):
         #    capture.set(cv.CAP_PROP_POS_FRAMES, 0)
@@ -398,6 +419,8 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
 
             face_2d = []
             face_3d = []
+            
+        
 
 
 
