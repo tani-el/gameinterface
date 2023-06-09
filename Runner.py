@@ -18,10 +18,10 @@ class DinoGame:
     def __init__(self):
         pygame.init()
         self.clock = pygame.time.Clock()
-        self.FPS = 30
+        self.FPS = 60
         self.active = True
         self.time_elapsed = 0
-        self.speed = 15
+        self.speed = 5
 
         # 현재 스크립트 파일의 경로를 가져옴
         script_dir = os.path.dirname(os.path.abspath(__file__))
