@@ -10,9 +10,9 @@ class NumGame:
         # 게임 초기화
         pygame.init()
 
-        # 게임 화면 설정
-        self.screen = pygame.display.set_mode((450, 450))
-        pygame.display.set_caption("숫자 클릭 게임")
+        # 게임 화면 초기화
+        self.screen = pygame.display.set_mode((100, 100))
+        pygame.display.set_caption("Loading...")
 
         # x, y 좌표
         self.x, self.y = x, y
@@ -31,15 +31,16 @@ class NumGame:
         self.init = 0
         self.game_count = 0  # 게임 횟수 변수
 
-        # 결과 화면 설정
-        self.result_screen = pygame.display.set_mode((450, 450))
-        pygame.display.set_caption("result")
+        # 게임 화면 설정
+        self.Num_screen = pygame.display.set_mode((1000, 900))
+        pygame.display.set_caption("숫자클릭게임")
 
         # 결과 텍스트 생성
         self.result_text = self.font.render("score: ", True, (0, 0, 0))  # 최종 점수 출력
         self.result_rect = self.result_text.get_rect(center=(225, 225))
 
         self.running = True
+        self.clicked_indices = []  # 클릭된 버튼의 인덱스 리스트
 
     def update(self):
         for event in pygame.event.get():
@@ -49,13 +50,15 @@ class NumGame:
                 if event.button == 1:  # 왼쪽 마우스 버튼 클릭
                     pos = pygame.mouse.get_pos()
                     clicked_number = None
-                    for number, rect in zip(self.numbers, self.number_rects):
+                    for i, rect in enumerate(self.number_rects):
                         if rect.collidepoint(pos):
-                            if clicked_number is None or number > clicked_number:
-                                clicked_number = number  # 숫자 갱신
+                            if clicked_number is None or self.numbers[i] > clicked_number:
+                                clicked_number = self.numbers[i]  # 숫자 갱신
                                 self.init += 1
-                                if self.max_number == number:
+                                if clicked_number == self.max_number:
+                                    time.sleep(0.2)
                                     self.is_check = True
+                                self.clicked_indices.append(i)  # 클릭된 버튼의 인덱스 추가
                     if clicked_number is not None:
                         if self.is_check:  # 최댓값이 맞다면 점수를 높임
                             self.score += 10
@@ -64,6 +67,10 @@ class NumGame:
                             self.max_number = max(self.numbers)
                         else:
                             self.score -= 10
+
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:  # 왼쪽 마우스 버튼 뗐을 때
+                    self.clicked_indices = []  # 클릭된 버튼의 인덱스 리스트 초기화
 
         # 게임 종료 조건 확인
         if self.init == 10:
@@ -80,7 +87,10 @@ class NumGame:
         self.number_rects = []
         for i, number in enumerate(self.numbers):
             rect = pygame.Rect((i % 3) * 130 + 50, (i // 3) * 130 + 50, 100, 100)
-            pygame.draw.rect(self.screen, (0, 0, 255), rect)
+            if i in self.clicked_indices:
+                pygame.draw.rect(self.screen, (255, 0, 0), rect)  # 클릭된 버튼은 빨간색으로 표시
+            else:
+                pygame.draw.rect(self.screen, (0, 0, 255), rect)  # 클릭되지 않은 버튼은 파란색으로 표시
             number_text = self.font.render(str(number), True, (255, 255, 255))
             number_rect = number_text.get_rect(center=rect.center)
             self.screen.blit(number_text, number_rect)
@@ -109,8 +119,8 @@ class NumGame:
             # print(self.x, self.y)
 
         # 결과 화면 업데이트
-        self.result_screen.fill((255, 255, 255))
-        self.result_screen.blit(self.result_text, self.result_rect)
+        self.Num_screen.fill((255, 255, 255))
+        self.Num_screen.blit(self.result_text, self.result_rect)
         pygame.display.flip()
         # 결과 화면 유지
         running = True
