@@ -86,11 +86,15 @@ detector = dlib.get_frontal_face_detector()
 landmark_predict = dlib.shape_predictor(
    'shape_predictor_68_face_landmarks.dat')
 
+blink_detected = False  # Blink가 감지되었는지 여부를 나타내는 전역 변수
+blink_detected_time = 0  # Blink가 감지된 시간을 저장할 전역 변수
+
 
 def detect_blink(frame, real_frame):
     global count_frame
-    # print(count_frame)
-    
+    global blink_detected
+    global blink_detected_time
+
     # Convert the frame to grayscale.
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
@@ -99,13 +103,10 @@ def detect_blink(frame, real_frame):
 
     # Loop over the faces.
     for face in faces:
-
         # Landmark detection.
         shape = landmark_predict(gray, face)
-
         # Convert the shape class directly to a list of (x,y) coordinates.
         shape = face_utils.shape_to_np(shape)
-
         # Extract the left and right eye landmarks.
         left_eye = shape[L_start:L_end]
         right_eye = shape[R_start:R_end]
@@ -116,22 +117,34 @@ def detect_blink(frame, real_frame):
 
         # Calculate the average EAR.
         avg_ear = (left_EAR + right_EAR) / 2
-        
 
         # Check if the average EAR is less than the blink threshold.
         if avg_ear < blink_thresh:
-            count_frame += 1 # incrementing the frame count
-            cv.putText(real_frame, 'Blink!', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (0, 0, 255), 1)        
-            return True
-
+            # Blink가 감지된 후에는 5초 동안 감지를 쉬도록 처리
+            if not blink_detected:
+                blink_detected = True
+                count_frame += 1  # incrementing the frame count
+                blink_detected_time = time.time()
+                cv.putText(real_frame, 'Blink!', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (0, 0, 255), 1)
+                return True
         else:
-            if count_frame >= succ_frame:
+            if count_frame >= succ_frame and not blink_detected:
                 cv.putText(real_frame, 'Blink Detecting...', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
                 return False
             else:
+                # Blink가 감지된 후에는 4초 동안 감지를 쉬도록 처리
+                if blink_detected:
+                    if time.time() - blink_detected_time >= 4.0:
+                        blink_detected = False
                 count_frame = 0
                 cv.putText(real_frame, 'Loading Detecting...!', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 1)
+
+                # 감지까지 남은 시간을 화면에 표시
+                remaining_time = max(4.0 - (time.time() - blink_detected_time), 0)
+                cv.putText(real_frame, f'Remaining Time: {remaining_time:.1f}s', (30, 60), cv.FONT_HERSHEY_DUPLEX, 1,
+                           (0, 0, 255), 1)
                 return False
+
 
 # Num_Game 을 돌리기 위한 코드-------------------
 game = Num_Game.NumGame(pos_x, pos_y)
