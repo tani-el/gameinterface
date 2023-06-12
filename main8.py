@@ -9,11 +9,13 @@ from scipy.spatial import distance as dist
 # to get the landmark ids of the left and right eyes
 # you can do this manually too
 from imutils import face_utils
-import Num_Game
+# import Num_Game   # merge_game으로 변경시켜놓음
 import pygame
 import threading
 import queue
 import time
+
+import merge_game as Num_Game
 # for test
 
 
@@ -95,6 +97,9 @@ def detect_blink(frame, real_frame):
     global blink_detected
     global blink_detected_time
 
+    # blink 쿨타임 추가
+    blink_cool_time = 4.0
+
     # Convert the frame to grayscale.
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
@@ -134,13 +139,13 @@ def detect_blink(frame, real_frame):
             else:
                 # Blink가 감지된 후에는 4초 동안 감지를 쉬도록 처리
                 if blink_detected:
-                    if time.time() - blink_detected_time >= 4.0:
+                    if time.time() - blink_detected_time >= blink_cool_time:
                         blink_detected = False
                 count_frame = 0
-                cv.putText(real_frame, 'Loading Detecting...!', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 1)
+                cv.putText(real_frame, 'Blink Detecting...', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 1)
 
                 # 감지까지 남은 시간을 화면에 표시
-                remaining_time = max(4.0 - (time.time() - blink_detected_time), 0)
+                remaining_time = max(blink_cool_time - (time.time() - blink_detected_time), 0)
                 cv.putText(real_frame, f'Remaining Time: {remaining_time:.1f}s', (30, 60), cv.FONT_HERSHEY_DUPLEX, 1,
                            (0, 0, 255), 1)
                 return False

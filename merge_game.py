@@ -3,7 +3,7 @@ import random
 import threading
 import time
 
-window = pygame.display.set_mode((800, 800))
+window = pygame.display.set_mode((450, 900))
 
 class NumGame:
     def __init__(self, x, y):
@@ -11,6 +11,8 @@ class NumGame:
         pygame.init()
 
         # 게임 화면 초기화
+        self.screen_width = 450
+        self.screen_height = 900
         self.screen = pygame.display.set_mode((450, 900))
         pygame.display.set_caption("Loading...")
 
@@ -56,6 +58,15 @@ class NumGame:
         # self.gravity = 2
         self.clock = pygame.time.Clock()
 
+        #장애물
+        self.obstacle_x = self.screen_width
+        self.obstacle_y = 800
+        self.obstacle_width = 50
+        self.obstacle_height = 50
+        self.obstacle_speed = random.randint(4, 7)  # 랜덤한 속도 설정
+        self.obstacle_timer = time.time() + random.uniform(4, 6)
+
+        self.collision_occurred = False
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -98,10 +109,16 @@ class NumGame:
                 if event.button == 1:  # 왼쪽 마우스 버튼 뗐을 때
                     self.clicked_indices = []  # 클릭된 버튼의 인덱스 리스트 초기화
             
-
-            elif event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
+        
+        # 아래쪽 게임부분
+        #------------------------
+            # 점프 키 구현
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    self.jump()
         
         # 점프
         if self.is_jumping:
@@ -113,6 +130,22 @@ class NumGame:
                 self.jump_count = 0
                 self.box_y = 800
 
+        # 장애물
+        if time.time() >= self.obstacle_timer:
+            self.obstacle_x = self.screen_width
+            self.obstacle_y = 800
+            self.obstacle_speed = random.randint(3, 5)
+            self.obstacle_timer = time.time() + random.uniform(3, 5)
+
+        self.obstacle_x -= self.obstacle_speed
+
+        if self.check_collision() and not self.collision_occurred:
+            self.score -= 5
+            self.collision_occurred = True
+        elif not self.check_collision():
+            self.collision_occurred = False
+
+
         # 게임 종료 조건 확인
         if self.init == 10:
             self.game_count += 1
@@ -120,11 +153,16 @@ class NumGame:
                 self.running = False
                 self.result_text = self.font.render("score: " + str(self.score), True, (0, 0, 0))  # 최종 점수 출력
 
-
+    # 점프 
     def jump(self):
         if not self.is_jumping:
             self.is_jumping = True
             self.jump_count = self.jump_height
+    # 충돌 체크
+    def check_collision(self):
+        box_rect = pygame.Rect(self.box_x, self.box_y, self.box_width, self.box_height)
+        obstacle_rect = pygame.Rect(self.obstacle_x, self.obstacle_y, self.obstacle_width, self.obstacle_height)
+        return box_rect.colliderect(obstacle_rect)
 
 
     def draw(self):
@@ -154,9 +192,9 @@ class NumGame:
         self.screen.blit(score_text, (10, 10))
 
         # 캐릭터 그리기
-        # self.screen.fill((255, 255, 255))
         pygame.draw.rect(self.screen, (255, 0, 0), (self.box_x, self.box_y, self.box_width, self.box_height))
-
+        pygame.draw.rect(self.screen, (0, 0, 255), (self.obstacle_x, self.obstacle_y, self.obstacle_width, self.obstacle_height))
+       
 
         # 화면 업데이트
         pygame.display.flip()
@@ -168,8 +206,9 @@ class NumGame:
 
     def run(self):
         while self.running:
-            self.handle_events()
+            
             self.update()
+            
             self.draw()
             self.clock.tick(60)
             # print(self.x, self.y)
@@ -191,5 +230,5 @@ class NumGame:
         pygame.quit()
 
 # 게임 시작
-game = NumGame(200, 200)
-game.run()
+# game = NumGame(200, 200)
+# game.run()
