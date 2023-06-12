@@ -325,7 +325,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
 
         game.set_target(pos_x, pos_y)
         # Add updated coordinates to the queue
-        coord_queue.put((pos_x, pos_y))
+        # coord_queue.put((pos_x, pos_y))
 
 
 
@@ -335,9 +335,6 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
 # Num_Game 을 돌리기 위한 코드
 game_thread.join()
 
-# Cleanup the game resources
-# Num_Game 을 돌리기 위한 코드
-game.cleanup()
 
 
 
