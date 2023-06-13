@@ -28,6 +28,8 @@ tar = 0
 
 startCalib = False
 
+pygame.init()
+pygame.display.set_caption("Simple PyGame Example")
 
 
 
@@ -101,28 +103,35 @@ class SpriteObject(pygame.sprite.Sprite):
         elif keys[pygame.K_2] and keyInput[1]:
             # global calibration_x, calibration_yx
             calibration_x, calibration_y = 0, 0
-            calibration_x, calibration_y = (w // 4) + 25 - x, (h // 4) + 25 - y  # 중간 왼위 보정 KEY_2
-            # print("보정 좌표값 : ", calibration_x, calibration_y)
+            calibration_x, calibration_y = (w // 4)+25-x,(h // 4)+25-y# 중간 왼위 보정 KEY_2
+            # print("보정 좌표값 : ", calibration_x, calibration_y) 
             keyInput[1] = False
         elif keys[pygame.K_3] and keyInput[2]:
-            # global calibration_x, calibration_yx
+            # global calibration_x, calibration_y
             calibration_x, calibration_y = 0, 0
-            calibration_x, calibration_y = (w // 4) * 3 - 25 - x, (h // 4) + 25 - y  # 중간 오위 보정 KEY_3
+            calibration_x, calibration_y = ((w // 4)*3 -25)-x ,(h // 4)-y  # 중간 오위 보정 KEY_3
             # print("보정 좌표값 : ", calibration_x, calibration_y)
             keyInput[2] = False
-
         elif keys[pygame.K_4] and keyInput[3]:
             # global calibration_x, calibration_yx
             calibration_x, calibration_y = 0, 0
-            calibration_x, calibration_y = (w // 4) + 25 - x, (h // 4) * 3 - 25 - y  # 중간 왼아래 보정 KEY_4
+            calibration_x, calibration_y = ((w // 4)+15)-x ,((h // 4)+15)-y  # 중간 좌하 보정 KEY_4
             # print("보정 좌표값 : ", calibration_x, calibration_y)
             keyInput[3] = False
         elif keys[pygame.K_5] and keyInput[4]:
             # global calibration_x, calibration_yx
             calibration_x, calibration_y = 0, 0
-            calibration_x, calibration_y = (w // 4) * 3 - 25 - x, (h // 4) * 3 - 25 - y  # 중간 오아래 보정 KEY_5
+            calibration_x, calibration_y = ((w // 4)*3 -25)-x,((h // 4)+15)-y  # 중간 우하 보정 KEY_5
             # print("보정 좌표값 : ", calibration_x, calibration_y)
             keyInput[4] = False
+
+        
+        elif keys[pygame.K_6] and keyInput[5]:
+            # global calibration_x, calibration_yx
+            calibration_x, calibration_y = 0, 0
+            calibration_x, calibration_y = (w // 4) * 3 - 25 - x, (h // 4) * 3 - 25 - y  # 중간 오아래 보정 KEY_5
+            # print("보정 좌표값 : ", calibration_x, calibration_y)
+            keyInput[5] = False
         
 
 class pygame_Calib():
@@ -139,8 +148,7 @@ class pygame_Calib():
         self.x = x
         self.y = y
         
-        pygame.init()
-        pygame.display.set_caption("Simple PyGame Example")
+        
         
         self.clock = pygame.time.Clock()
         
