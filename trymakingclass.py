@@ -4,7 +4,6 @@ import cv2 as cv
 import pygame
 import sys
 from pygame.locals import *
-import random
 import dlib  # for face and landmark detection
 import imutils
 # for calculating dist b/w the eye landmarks
@@ -21,12 +20,12 @@ def calibration(x,y):
     global calibration_x, calibration_y
 
 keyInput = [True, True, True, True, True]
-order = [4, 0, 1, 2, 3, 6, 9, 8, 11, 12, 7, 10, 5]
-calib = [False,False,False,False,False,False,False,False,False,False,False,False,False,]
+calib = [False,False,False,False,False]
 clicknum = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 tar = 0
 
 startCalib = False
+endCalib = False
 
 pygame.init()
 pygame.display.set_caption("Simple PyGame Example")
@@ -37,6 +36,7 @@ num_check = [True, True, True, True, True]
 class SpriteObject(pygame.sprite.Sprite):
     def __init__(self, x, y, color, target):
         super().__init__()
+        global tar
         self.original_image = pygame.Surface((50, 50), pygame.SRCALPHA)
         pygame.draw.circle(self.original_image, color, (25, 25), 25)
         
@@ -44,20 +44,16 @@ class SpriteObject(pygame.sprite.Sprite):
         pygame.draw.circle(self.hover_image, color, (25, 25), 25)
         pygame.draw.circle(self.hover_image, (255, 255, 255), (25, 25), 25, 4)  # 흰색으로 변하는 부분
         
-        self.target_image = pygame.Surface((50, 50), pygame.SRCALPHA)
-        pygame.draw.circle(self.target_image, color, (25, 25), 25)
-        pygame.draw.circle(self.target_image, (255, 255, 0), (25, 25), 25, 4)
-        self.target = target
+
         
-        if self.target == True:
-            self.image = self.target_image
-        else:
-            self.image = self.original_image
+
+        self.image = self.original_image
 
         self.rect = self.image.get_rect(center=(x, y))
         self.hover = False
         self.x = x
         self.y = y
+        self.target = tar
         
         self.update()
 
@@ -66,6 +62,9 @@ class SpriteObject(pygame.sprite.Sprite):
 
     def get_y(self):
         return self.y
+    
+    def print_order(self):
+        self.tar
 
     def update(self):
         mouse_pos = self.x, self.y
@@ -77,20 +76,18 @@ class SpriteObject(pygame.sprite.Sprite):
         
         
         
-
+        
         # 현재 키보드 상태 감지
         keys = pygame.key.get_pressed()
         # 스페이스바 입력 감지 예시
         if keys[pygame.K_SPACE]:  # 스페이스바가 눌렸을 때
             
             if hover:
-                if self.target == True:
-                    self.image = self.target_image
-                    tar += 1
+                
+                self.image = self.hover_image
+                    
 
-                else:
-                    self.image = self.original_image
-
+            
             else:
                 self.image = self.original_image
 
@@ -101,6 +98,7 @@ class SpriteObject(pygame.sprite.Sprite):
             calibration_x, calibration_y = w // 2 - x, h // 2 - y  # 중앙 보정 KEY_1
             # print("보정 좌표값 : ", calibration_x, calibration_y)
             keyInput[0] = False
+            tar += 1
 
         elif keys[pygame.K_2] and keyInput[1]:
             # global calibration_x, calibration_yx
@@ -110,24 +108,28 @@ class SpriteObject(pygame.sprite.Sprite):
             # print("보정 좌표값 : ", calibration_x, calibration_y) 
 
             keyInput[1] = False
+            tar += 1
         elif keys[pygame.K_3] and keyInput[2]:
             # global calibration_x, calibration_y
             calibration_x, calibration_y = 0, 0
             calibration_x, calibration_y = ((w // 4)*3 -25)-x ,(h // 4)-y  # 중간 오위 보정 KEY_3
             # print("보정 좌표값 : ", calibration_x, calibration_y)
             keyInput[2] = False
+            tar += 1
         elif keys[pygame.K_4] and keyInput[3]:
             # global calibration_x, calibration_yx
             calibration_x, calibration_y = 0, 0
             calibration_x, calibration_y = (w // 4)+25 -x, (h // 4)*3 - 25 -y  # 중간 좌하 보정 KEY_4
             # print("보정 좌표값 : ", calibration_x, calibration_y)
             keyInput[3] = False
+            tar += 1
         elif keys[pygame.K_5] and keyInput[4]:
             # global calibration_x, calibration_yx
             calibration_x, calibration_y = 0, 0
             calibration_x, calibration_y = (w // 4)*3 -25 -x, (h // 4)*3 - 25 -y  # 중간 우하 보정 KEY_5
             # print("보정 좌표값 : ", calibration_x, calibration_y)
             keyInput[4] = False
+            tar += 1
 
         
 
@@ -178,11 +180,9 @@ class pygame_Calib():
         pygame.draw.circle(self.window, self.white, (pos_x, pos_y), 10)
         
 
-        self.tar = order[tar]
+        self.tar = tar
         self.list = self.group.sprites()
                    
-        #self.list[self.tar] 위치의 spriteobject의 target 값을 true로 변경 이거 어떻게 하는지 아시나요...
-        calib[tar] = True
         self.group.update()
         myfont = pygame.font.SysFont(None,30)
         
@@ -205,44 +205,76 @@ class pygame_Calib():
         
         if startCalib == False:
             self.calib_guide()
-            self.draw_pygame() 
+            
         else:
             self.draw_pygame() 
         
 
     def calib_guide(self):
         global startCalib
+        global endCalib
+        global tar
         
         font = pygame.font.SysFont(None,30)
         self.window.fill(self.black)
-        intro = font.render('Waiting for Calibration to Start...', True, (255, 255, 255))
-        intro2 = font.render("Press [Space] to Start",True, (255, 255, 255))
-        self.window.blit(intro, ((w//2)-150,h//2-10))
-        self.window.blit(intro2, ((w//2)-100,(h//2)+10))
+        
+        
+        if startCalib == False:
             
-        keys = pygame.key.get_pressed()
-        # 스페이스바 입력 감지 예시
-        if keys[pygame.K_SPACE]:  # 스페이스바가 눌렸을 때 넘어감
-            startCalib = True
-            return
+            intro = font.render('Waiting for the Window to be activated...', True, (255, 255, 255))
+            intro2 = font.render("Click this window to Start",True, (255, 255, 255))
+            self.window.blit(intro, ((w//2)-200,h//2-10))
+            self.window.blit(intro2, ((w//2)-100,(h//2)+10))
+            pygame.display.update()
+                
+            for i in pygame.event.get():
+                if i.type == pygame.QUIT:
+                    return
+                
+                #For detecting mouse click
+                if i.type == pygame.MOUSEBUTTONDOWN:
+                    startCalib = True
+                    self.draw_pygame() 
+                    return
+
+         
             
-        elif tar == 12:
-            pass # calib 종료
+        elif endCalib == False:
             
+            pygame.display.update()
+            
+            self.draw_pygame()
+        
+        else:
+            outro = font.render('Calibration finished!', True, (255, 255, 255))
+            outro2 = font.render("Press [SPACE] to Start TEST",True, (255, 255, 255))
+            self.window.blit(outro, ((w//2)-80,h//2-10))
+            self.window.blit(outro2, ((w//2)-80,(h//2)+10))
+            pygame.display.update()
+                
+            for i in pygame.event.get():
+                if i.type == pygame.QUIT:
+                    return
+                
+                #For detecting mouse click
+                if i.type == pygame.K_SPACE:
+                    pygame.quit()
+                    
             
     def draw_pygame(self):
         global calibration_x, calibration_y
         global startCalib
+        global endCalib
         
-        if startCalib == False:
-            self.calib_guide()
-        else:
-            
-            if calibration_x != 0 and self.x > 0:
-                self.x *= 1.0 + calibration_x / self.x
-            if calibration_y != 0 and self.y > 0:
-                self.y *= 1.0 + calibration_y / self.y
 
+            
+        if calibration_x != 0 and self.x > 0:
+            self.x *= 1.0 + calibration_x / self.x
+        if calibration_y != 0 and self.y > 0:
+            self.y *= 1.0 + calibration_y / self.y
+            
+        self.instruct = self.font40.render(f'Look at {tar + 1} and Press the number. ', True, (255, 255, 255))
+        self.window.blit(self.instruct,(10, 20))
         if keyInput[1]: self.window.blit(self.numbers[1], ((self.window.get_width() // 4)+15,(self.window.get_height() // 4)+15))
         if keyInput[2]: self.window.blit(self.numbers[2], ((self.window.get_width() // 4)*3 -35,(self.window.get_height() // 4)+15))
         if keyInput[3]: self.window.blit(self.numbers[3], ((self.window.get_width() // 4)+15,(self.window.get_height() // 4)*3 - 35))
@@ -257,6 +289,9 @@ class pygame_Calib():
         # self.window.blit(self.numbers[9], ((self.window.get_width()-35, (self.window.get_height()//2)-10)))
         # self.window.blit(self.numbers[12], (self.window.get_width()-35, self.window.get_height()-35))
         
+        if keyInput[0] == False and keyInput[1] == False and keyInput[3] == False and keyInput[3] == False and keyInput[4] == False:
+            endCalib = True
+            self.calib_guide()
         
         pygame.display.update()
         
