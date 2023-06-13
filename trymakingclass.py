@@ -138,7 +138,7 @@ class pygame_Calib():
     
     def __init__(self,x,y):
         global tar
-
+        global startCalib
         self.white = (255, 255, 255)
         self.black = (0, 0, 0)
         self.yellow = (255,255,0)
@@ -204,20 +204,28 @@ class pygame_Calib():
             myfont.render(str(clicknum[12]),True,self.white)
         ]
         
-        
-        self.draw_pygame() 
+        if startCalib == False:
+            self.calib_guide()
+            self.draw_pygame() 
+        else:
+            self.draw_pygame() 
         
 
     def calib_guide(self):
-        if startCalib == False:
-            font = pygame.font.Font('freesansbold.ttf', 32)
-            self.window.fill(self.black)
-            font.render('보정 작업을 시작합니다.', True, (255, 255, 255))
+        global startCalib
+        
+        font = pygame.font.SysFont(None,30)
+        self.window.fill(self.black)
+        intro = font.render('Waiting for Calibration to Start...', True, (255, 255, 255))
+        intro2 = font.render("Press [Space] to Start",True, (255, 255, 255))
+        self.window.blit(intro, ((w//2)-150,h//2-10))
+        self.window.blit(intro2, ((w//2)-100,(h//2)+10))
             
-            keys = pygame.key.get_pressed()
+        keys = pygame.key.get_pressed()
         # 스페이스바 입력 감지 예시
-            if keys[pygame.K_SPACE]:  # 스페이스바가 눌렸을 때 넘어감
-                return
+        if keys[pygame.K_SPACE]:  # 스페이스바가 눌렸을 때 넘어감
+            startCalib = True
+            return
             
         elif tar == 12:
             pass # calib 종료
@@ -225,26 +233,30 @@ class pygame_Calib():
             
     def draw_pygame(self):
         global calibration_x, calibration_y
+        global startCalib
         
+        if startCalib == False:
+            self.calib_guide()
+        else:
+            
+            if calibration_x != 0 and self.x > 0:
+                self.x *= 1.0 + calibration_x / self.x
+            if calibration_y != 0 and self.y > 0:
+                self.y *= 1.0 + calibration_y / self.y
 
-        if calibration_x != 0 and self.x > 0:
-            self.x *= 1.0 + calibration_x / self.x
-        if calibration_y != 0 and self.y > 0:
-            self.y *= 1.0 + calibration_y / self.y
-
-        self.window.blit(self.numbers[1], ((self.window.get_width() // 4)+15,(self.window.get_height() // 4)+15))
-        self.window.blit(self.numbers[2], ((self.window.get_width() // 4)*3 -35,(self.window.get_height() // 4)+15))
-        self.window.blit(self.numbers[3], ((self.window.get_width() // 4)+15,(self.window.get_height() // 4)*3 - 35))
-        self.window.blit(self.numbers[4], ((self.window.get_width() // 4)*3 -35, (self.window.get_height() // 4)*3 - 35))
-        self.window.blit(self.numbers[0], ((self.window.get_width() // 2)-10, (self.window.get_height() // 2)-10))
-        self.window.blit(self.numbers[5], (15, 15))
-        self.window.blit(self.numbers[10], (15, self.window.get_height()-35))
-        self.window.blit(self.numbers[7], (self.window.get_width()-35, 15))
-        self.window.blit(self.numbers[6], ((self.window.get_width() // 2) -10, 15))
-        self.window.blit(self.numbers[11], ((self.window.get_width() // 2) -10, self.window.get_height()-35))
-        self.window.blit(self.numbers[8], (15, (self.window.get_height()//2)-10))
-        self.window.blit(self.numbers[9], ((self.window.get_width()-35, (self.window.get_height()//2)-10)))
-        self.window.blit(self.numbers[12], (self.window.get_width()-35, self.window.get_height()-35))
+            self.window.blit(self.numbers[1], ((self.window.get_width() // 4)+15,(self.window.get_height() // 4)+15))
+            self.window.blit(self.numbers[2], ((self.window.get_width() // 4)*3 -35,(self.window.get_height() // 4)+15))
+            self.window.blit(self.numbers[3], ((self.window.get_width() // 4)+15,(self.window.get_height() // 4)*3 - 35))
+            self.window.blit(self.numbers[4], ((self.window.get_width() // 4)*3 -35, (self.window.get_height() // 4)*3 - 35))
+            self.window.blit(self.numbers[0], ((self.window.get_width() // 2)-10, (self.window.get_height() // 2)-10))
+            self.window.blit(self.numbers[5], (15, 15))
+            self.window.blit(self.numbers[10], (15, self.window.get_height()-35))
+            self.window.blit(self.numbers[7], (self.window.get_width()-35, 15))
+            self.window.blit(self.numbers[6], ((self.window.get_width() // 2) -10, 15))
+            self.window.blit(self.numbers[11], ((self.window.get_width() // 2) -10, self.window.get_height()-35))
+            self.window.blit(self.numbers[8], (15, (self.window.get_height()//2)-10))
+            self.window.blit(self.numbers[9], ((self.window.get_width()-35, (self.window.get_height()//2)-10)))
+            self.window.blit(self.numbers[12], (self.window.get_width()-35, self.window.get_height()-35))
         
         
         pygame.display.update()
