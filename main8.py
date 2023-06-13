@@ -48,7 +48,7 @@ endCalib = False
 
 pygame.init()
 pygame.display.set_caption("Simple PyGame Example")
-cal_window =  pygame.display.set_mode((w, h))
+
 
 num_check = [True, True, True, True, True]
 
@@ -161,7 +161,7 @@ class pygame_Calib():
         self.black = (0, 0, 0)
         self.yellow = (255,255,0)
         global calibration_x, calibration_y 
-        global cal_window
+        
         self.x = x
         self.y = y
         
@@ -169,7 +169,7 @@ class pygame_Calib():
         
         self.clock = pygame.time.Clock()
         
-        self.window = cal_window
+        self.window = pygame.display.set_mode((w, h))
         self.font40 = pygame.font.SysFont(None, 40)
         self.clock = pygame.time.Clock()
         
