@@ -313,7 +313,7 @@ class NumGame:
             # print(self.x, self.y)
 
         # 결과 화면 업데이트
-        self.Num_screen.fill((255, 255, 255))
+        self.Num_screen.fill((0, 0, 0))
         self.Num_screen.blit(self.result_text, self.result_rect)
         # print("결과창 시작")
         
