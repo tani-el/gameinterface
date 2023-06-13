@@ -69,6 +69,8 @@ class NumGame:
         file_path = os.path.join(script_dir, 'resources.png')
         file_path_Circle = os.path.join(script_dir, 'Circle.png')
         file_path_X = os.path.join(script_dir, 'X.png')
+        file_path_sound_correct = os.path.join(script_dir, 'correct.mp3')
+        file_path_sound_wrong = os.path.join(script_dir, 'wrong.mp3')
 
         # extracting game items and characters form the resource.png image.
         self.player_init = Image.open(file_path).crop((77, 5, 163, 96)).convert("RGBA")
@@ -83,6 +85,10 @@ class NumGame:
         self.Circle = pygame.transform.scale(self.Circle, (100, 100))
         self.Red_X = pygame.image.load(file_path_X)
         self.Red_X = pygame.transform.scale(self.Red_X, (100, 100))
+
+        # 사운드
+        self.sound_correct = pygame.mixer.Sound(file_path_sound_correct)
+        self.sound_wrong = pygame.mixer.Sound(file_path_sound_wrong)
 
         #장애물
         self.obstacle_x = self.screen_width
@@ -219,8 +225,13 @@ class NumGame:
             if i in self.clicked_indices:
                 if self.show_image_circle:
                     self.screen.blit(self.Circle, (self.x-50, self.y-50)) # 맞으면 동그라미
+                    self.sound_correct.play()
+                    time.sleep(1)
+                    
                 elif self.show_image_Red_X:
                     self.screen.blit(self.Red_X, (self.x-50, self.y-50)) # 틀리면 x
+                    self.sound_wrong.play()
+                    time.sleep(1)
 
                
 
