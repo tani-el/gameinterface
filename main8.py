@@ -560,7 +560,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
             pygame_Calib(x, y)
         elif state == 1:
             print("Num_Game 실행")
-            
+            pygame.display.set_mode((450, 800))
             game_thread.start()
             state = STATE_NONE
             # Signal the game thread to exit
@@ -569,7 +569,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
         elif state == STATE_SCORE:
             # 여기에서 score 창 클래스 띄우기
             pass
-        
+        game.set_target(pos_x, pos_y)
         
 
 
