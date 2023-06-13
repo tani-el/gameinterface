@@ -68,6 +68,12 @@ class NumGame:
         file_path = os.path.join(script_dir, 'resources.png')
         file_path_Circle = os.path.join(script_dir, 'Circle.png')
         file_path_X = os.path.join(script_dir, 'X.png')
+        file_path_Score_0 = os.path.join(script_dir, 'Score_0.png')
+        file_path_Score_1 = os.path.join(script_dir, 'Score_1.png')
+        file_path_Score_2 = os.path.join(script_dir, 'Score_2.png')
+        file_path_Score_3 = os.path.join(script_dir, 'Score_3.png')
+        file_path_Score_4 = os.path.join(script_dir, 'Score_4.png')
+        file_path_Score_5 = os.path.join(script_dir, 'Score_5.png')
         file_path_sound_correct = os.path.join(script_dir, 'correct.mp3')
         file_path_sound_wrong = os.path.join(script_dir, 'wrong.mp3')
 
@@ -79,10 +85,32 @@ class NumGame:
         self.show_image_circle = False
         self.show_image_Red_X = False
 
+        self.show_image_Score_0 = False
+        self.show_image_Score_1 = False
+        self.show_image_Score_2 = False
+        self.show_image_Score_3 = False
+        self.show_image_Score_4 = False
+        self.show_image_Score_5 = False
+
+
         self.Circle = pygame.image.load(file_path_Circle)
         self.Circle = pygame.transform.scale(self.Circle, (100, 100))
         self.Red_X = pygame.image.load(file_path_X)
         self.Red_X = pygame.transform.scale(self.Red_X, (100, 100))
+
+        self.Score_0 = pygame.image.load(file_path_Score_0)
+        self.Score_0 = pygame.transform.scale(self.Score_0, (200, 200))
+        self.Score_1 = pygame.image.load(file_path_Score_1)
+        self.Score_1 = pygame.transform.scale(self.Score_1, (200, 200))
+        self.Score_2 = pygame.image.load(file_path_Score_2)
+        self.Score_2 = pygame.transform.scale(self.Score_2, (200, 200))
+        self.Score_3 = pygame.image.load(file_path_Score_3)
+        self.Score_3 = pygame.transform.scale(self.Score_3, (200, 200))
+        self.Score_4 = pygame.image.load(file_path_Score_4)
+        self.Score_4 = pygame.transform.scale(self.Score_4, (200, 200))
+        self.Score_5 = pygame.image.load(file_path_Score_5)
+        self.Score_5 = pygame.transform.scale(self.Score_5, (200, 200))
+
 
         # 사운드
         self.sound_correct = pygame.mixer.Sound(file_path_sound_correct)
@@ -286,6 +314,20 @@ class NumGame:
         # 결과 화면 업데이트
         self.Num_screen.fill((255, 255, 255))
         self.Num_screen.blit(self.result_text, self.result_rect)
+        
+        if self.score < 20 :
+            self.screen.blit(self.Score_0, (225, 500))
+        elif 20 <= self.score <40 :
+            self.screen.blit(self.Score_1, (225, 500))
+        elif 40 <= self.score <60 :
+            self.screen.blit(self.Score_2, (225, 500))
+        elif 60 <= self.score <80 :
+            self.screen.blit(self.Score_3, (225, 500))
+        elif 80 <= self.score < 100 :
+            self.screen.blit(self.Score_4, (225, 500))
+        elif self.score == 100 :
+            self.screen.blit(self.Score_5, (225, 500))
+        
         pygame.display.flip()
 
         # 결과 화면 유지
