@@ -235,7 +235,7 @@ class NumGame:
         if self.score < 0:
             self.score = 0
 
-        print("init", self.init, "game_count", self.game_count)
+
         # 게임 종료 조건 확인
         if self.init >= 10:
             self.game_count += 1
@@ -275,12 +275,12 @@ class NumGame:
                 if self.show_image_circle:
                     self.screen.blit(self.Circle, (self.x - 50, self.y - 50))  # 맞으면 동그라미
                     self.sound_correct.play()
-                    time.sleep(1)
+                    # time.sleep(1)
 
                 elif self.show_image_Red_X:
                     self.screen.blit(self.Red_X, (self.x - 50, self.y - 50))  # 틀리면 x
                     self.sound_wrong.play()
-                    time.sleep(1)
+                    # time.sleep(1)
         # 커서 그리기
         pos_x, pos_y = self.x, self.y
         pygame.draw.circle(window, (255, 255, 255), (pos_x, pos_y), 10)
@@ -315,7 +315,7 @@ class NumGame:
         # 결과 화면 업데이트
         self.Num_screen.fill((255, 255, 255))
         self.Num_screen.blit(self.result_text, self.result_rect)
-        print("결과창 시작")
+        # print("결과창 시작")
         
         if self.score < 20 :
             self.screen.blit(self.Score_0, (20, 100))

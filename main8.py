@@ -259,7 +259,7 @@ class pygame_Calib():
             pygame.display.update()
                 
             for i in pygame.event.get():
-                print("다음 state")
+                # print("다음 state")
                 if i.type == pygame.QUIT:
                     return
                 
@@ -412,7 +412,7 @@ def run_game():
 game_thread = threading.Thread(target=run_game)
 # 시작위한 STATE 설정
 state = STATE_CALIBRATION
-print(state)
+# print(state)
 #-----------------------------------------------
 
 
@@ -541,7 +541,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
 
         pos_x, pos_y = x, y
         if state == 0 and not endCalib:
-            print("Calib_실행")
+            # print("Calib_실행")
             pygame_Calib(x, y)
         elif state == 1:
             print("Num_Game 실행")
