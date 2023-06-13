@@ -267,7 +267,7 @@ class pygame_Calib():
                 if i.type == pygame.K_SPACE:
                     #게임 시작
                     state = STATE_NUM_GAME
-                    
+                    time.sleep(2)
                     pygame.quit()
                     
             
@@ -406,21 +406,6 @@ def run_game():
             game.set_target(pos_x, pos_y)
         
         game.run()
-    # 점수판 함수 데모 제작중
-'''    
-        Num_Game.result_screen.fill((255, 255, 255))
-        #Num game 점수
-        Num_Game.result_screen.blit(Num_Game.result_text, Num_Game.result_rect)
-        #T-RexRuner 점수(임시)
-        #Dino_Run.result_screen.blit(Dino_Run.result_text, Dino_Run.result_rect)
-        pygame.display.flip()
-        # 결과 화면 유지
-        running = True
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-'''
 
 
 # Create and start the game thread
