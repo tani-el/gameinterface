@@ -2,8 +2,10 @@ import pygame
 import random
 import threading
 import time
+import os
+from PIL import  Image
 
-window = pygame.display.set_mode((450, 900))
+window = pygame.display.set_mode((450, 800))
 
 class NumGame:
     def __init__(self, x, y):
@@ -13,7 +15,7 @@ class NumGame:
         # 게임 화면 초기화
         self.screen_width = 450
         self.screen_height = 900
-        self.screen = pygame.display.set_mode((450, 900))
+        self.screen = pygame.display.set_mode((450, 800))
         pygame.display.set_caption("Loading...")
 
         # x, y 좌표
@@ -34,7 +36,7 @@ class NumGame:
         self.game_count = 0  # 게임 횟수 변수
 
         # 게임 화면 설정
-        self.Num_screen = pygame.display.set_mode((450, 900))
+        self.Num_screen = pygame.display.set_mode((450, 800))
         pygame.display.set_caption("숫자클릭게임")
 
         # 결과 텍스트 생성
@@ -48,8 +50,10 @@ class NumGame:
 
         # jump
         #-------------------------
+        self.floor = 700
+
         self.box_x = 100
-        self.box_y = 800
+        self.box_y = self.floor
         self.box_width = 50
         self.box_height = 50
         self.jump_height = 160
@@ -58,9 +62,20 @@ class NumGame:
         # self.gravity = 2
         self.clock = pygame.time.Clock()
 
+         # 현재 스크립트 파일의 경로를 가져옴
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # 같은 폴더에 있는 파일의 경로를 생성
+        file_path = os.path.join(script_dir, 'resources.png')
+
+        # extracting game items and characters form the resource.png image.
+        self.player_init = Image.open(file_path).crop((77, 5, 163, 96)).convert("RGBA")
+        self.player_init = self.player_init.resize(list(map(lambda x: x // 2, self.player_init.size)))
+
+
         #장애물
         self.obstacle_x = self.screen_width
-        self.obstacle_y = 800
+        self.obstacle_y = self.floor
         self.obstacle_width = 50
         self.obstacle_height = 50
         self.obstacle_speed = random.randint(4, 7)  # 랜덤한 속도 설정
@@ -128,12 +143,12 @@ class NumGame:
             else:
                 self.is_jumping = False
                 self.jump_count = 0
-                self.box_y = 800
+                self.box_y = self.floor
 
         # 장애물
         if time.time() >= self.obstacle_timer:
             self.obstacle_x = self.screen_width
-            self.obstacle_y = 800
+            self.obstacle_y = self.floor
             self.obstacle_speed = random.randint(3, 5)
             self.obstacle_timer = time.time() + random.uniform(3, 5)
 
