@@ -31,6 +31,7 @@ startCalib = False
 pygame.init()
 pygame.display.set_caption("Simple PyGame Example")
 
+num_check = [True, True, True, True, True]
 
 
 class SpriteObject(pygame.sprite.Sprite):
@@ -100,11 +101,14 @@ class SpriteObject(pygame.sprite.Sprite):
             calibration_x, calibration_y = w // 2 - x, h // 2 - y  # 중앙 보정 KEY_1
             # print("보정 좌표값 : ", calibration_x, calibration_y)
             keyInput[0] = False
+
         elif keys[pygame.K_2] and keyInput[1]:
             # global calibration_x, calibration_yx
             calibration_x, calibration_y = 0, 0
-            calibration_x, calibration_y = (w // 4)+25-x,(h // 4)+25-y# 중간 왼위 보정 KEY_2
+            calibration_x, calibration_y = (w // 4) +25 -x, (h // 4) +25 - y # 중간 왼위 보정 KEY_2 
+                 
             # print("보정 좌표값 : ", calibration_x, calibration_y) 
+
             keyInput[1] = False
         elif keys[pygame.K_3] and keyInput[2]:
             # global calibration_x, calibration_y
@@ -115,24 +119,18 @@ class SpriteObject(pygame.sprite.Sprite):
         elif keys[pygame.K_4] and keyInput[3]:
             # global calibration_x, calibration_yx
             calibration_x, calibration_y = 0, 0
-            calibration_x, calibration_y = ((w // 4)+15)-x ,((h // 4)+15)-y  # 중간 좌하 보정 KEY_4
+            calibration_x, calibration_y = (w // 4)+25 -x, (h // 4)*3 - 25 -y  # 중간 좌하 보정 KEY_4
             # print("보정 좌표값 : ", calibration_x, calibration_y)
             keyInput[3] = False
         elif keys[pygame.K_5] and keyInput[4]:
             # global calibration_x, calibration_yx
             calibration_x, calibration_y = 0, 0
-            calibration_x, calibration_y = ((w // 4)*3 -25)-x,((h // 4)+15)-y  # 중간 우하 보정 KEY_5
+            calibration_x, calibration_y = (w // 4)*3 -25 -x, (h // 4)*3 - 25 -y  # 중간 우하 보정 KEY_5
             # print("보정 좌표값 : ", calibration_x, calibration_y)
             keyInput[4] = False
 
         
-        elif keys[pygame.K_6] and keyInput[5]:
-            # global calibration_x, calibration_yx
-            calibration_x, calibration_y = 0, 0
-            calibration_x, calibration_y = (w // 4) * 3 - 25 - x, (h // 4) * 3 - 25 - y  # 중간 오아래 보정 KEY_5
-            # print("보정 좌표값 : ", calibration_x, calibration_y)
-            keyInput[5] = False
-        
+
 
 class pygame_Calib():
     
@@ -156,26 +154,27 @@ class pygame_Calib():
         self.font40 = pygame.font.SysFont(None, 40)
         self.clock = pygame.time.Clock()
         
-        self.sprite_object = SpriteObject(*self.window.get_rect().center, (128, 128, 0),False)
+        # self.sprite_object = SpriteObject(*self.window.get_rect().center, (128, 128, 0),False)
+        # self.sprite_object = SpriteObject(self.x, self.y, (128, 128, 0),False)
         self.group = pygame.sprite.Group([
             SpriteObject((self.window.get_width() // 4)+25,(self.window.get_height() // 4)+25, (128, 0, 0),calib[0]),
             SpriteObject((self.window.get_width() // 4)*3 -25,(self.window.get_height() // 4)+25,(0, 128, 0),calib[1]), 
             SpriteObject((self.window.get_width() // 4)+25,(self.window.get_height() // 4)*3 - 25, (0, 0, 128),calib[2]),
             SpriteObject((self.window.get_width() // 4)*3 -25, (self.window.get_height() // 4)*3 - 25, (128, 128, 0),calib[3]),
             SpriteObject(self.window.get_width() // 2, self.window.get_height() // 2, (0, 96, 128),calib[4]), #중앙
-            SpriteObject(self.window.get_width()-25, self.window.get_height()-25, (128, 0, 96),calib[5]), #우하
-            SpriteObject(25, 25, (64, 0, 128),calib[6]), #좌상
-            SpriteObject(25, self.window.get_height()-25, (128, 64, 0),calib[7]),#좌하
-            SpriteObject(self.window.get_width()-25, 25, (32, 128, 0),calib[8]),#우상
-            SpriteObject(self.window.get_width() // 2, 25, (255, 102, 204),calib[9]),#중상
-            SpriteObject(self.window.get_width() // 2, self.window.get_height()-25, (0, 102, 255),calib[10]), #중하
-            SpriteObject(25, self.window.get_height()//2, (153, 255, 153),calib[11]),  #중좌
-            SpriteObject(self.window.get_width()-25, self.window.get_height()//2, (255, 255, 102),calib[12]) # 중우
+            # SpriteObject(self.window.get_width()-25, self.window.get_height()-25, (128, 0, 96),calib[5]), #우하
+            # SpriteObject(25, 25, (64, 0, 128),calib[6]), #좌상
+            # SpriteObject(25, self.window.get_height()-25, (128, 64, 0),calib[7]),#좌하
+            # SpriteObject(self.window.get_width()-25, 25, (32, 128, 0),calib[8]),#우상
+            # SpriteObject(self.window.get_width() // 2, 25, (255, 102, 204),calib[9]),#중상
+            # SpriteObject(self.window.get_width() // 2, self.window.get_height()-25, (0, 102, 255),calib[10]), #중하
+            # SpriteObject(25, self.window.get_height()//2, (153, 255, 153),calib[11]),  #중좌
+            # SpriteObject(self.window.get_width()-25, self.window.get_height()//2, (255, 255, 102),calib[12]) # 중우
         ])        
         
         self.window.fill(self.black)
         self.window.blit(py_frame, (0,0))
-        self.group.draw(self.window)
+        if any(keyInput): self.group.draw(self.window)
         pygame.draw.circle(self.window, self.white, (pos_x, pos_y), 10)
         
 
@@ -194,14 +193,14 @@ class pygame_Calib():
             myfont.render(str(clicknum[2]),True,self.white),
             myfont.render(str(clicknum[3]),True,self.white),
             myfont.render(str(clicknum[4]),True,self.white),
-            myfont.render(str(clicknum[5]),True,self.white),
-            myfont.render(str(clicknum[6]),True,self.white),
-            myfont.render(str(clicknum[7]),True,self.white),
-            myfont.render(str(clicknum[8]),True,self.white),
-            myfont.render(str(clicknum[9]),True,self.white),
-            myfont.render(str(clicknum[10]),True,self.white),
-            myfont.render(str(clicknum[11]),True,self.white),
-            myfont.render(str(clicknum[12]),True,self.white)
+            # myfont.render(str(clicknum[5]),True,self.white),
+            # myfont.render(str(clicknum[6]),True,self.white),
+            # myfont.render(str(clicknum[7]),True,self.white),
+            # myfont.render(str(clicknum[8]),True,self.white),
+            # myfont.render(str(clicknum[9]),True,self.white),
+            # myfont.render(str(clicknum[10]),True,self.white),
+            # myfont.render(str(clicknum[11]),True,self.white),
+            # myfont.render(str(clicknum[12]),True,self.white)
         ]
         
         
@@ -227,24 +226,24 @@ class pygame_Calib():
         global calibration_x, calibration_y
         
 
-        if calibration_x != 0 and self.x > 0:
-            self.x *= 1.0 + calibration_x / self.x
-        if calibration_y != 0 and self.y > 0:
-            self.y *= 1.0 + calibration_y / self.y
+        # if calibration_x != 0 and self.x > 0:
+        #     self.x *= 1.0 + calibration_x / self.x
+        # if calibration_y != 0 and self.y > 0:
+        #     self.y *= 1.0 + calibration_y / self.y
 
-        self.window.blit(self.numbers[1], ((self.window.get_width() // 4)+15,(self.window.get_height() // 4)+15))
-        self.window.blit(self.numbers[2], ((self.window.get_width() // 4)*3 -35,(self.window.get_height() // 4)+15))
-        self.window.blit(self.numbers[3], ((self.window.get_width() // 4)+15,(self.window.get_height() // 4)*3 - 35))
-        self.window.blit(self.numbers[4], ((self.window.get_width() // 4)*3 -35, (self.window.get_height() // 4)*3 - 35))
-        self.window.blit(self.numbers[0], ((self.window.get_width() // 2)-10, (self.window.get_height() // 2)-10))
-        self.window.blit(self.numbers[5], (15, 15))
-        self.window.blit(self.numbers[10], (15, self.window.get_height()-35))
-        self.window.blit(self.numbers[7], (self.window.get_width()-35, 15))
-        self.window.blit(self.numbers[6], ((self.window.get_width() // 2) -10, 15))
-        self.window.blit(self.numbers[11], ((self.window.get_width() // 2) -10, self.window.get_height()-35))
-        self.window.blit(self.numbers[8], (15, (self.window.get_height()//2)-10))
-        self.window.blit(self.numbers[9], ((self.window.get_width()-35, (self.window.get_height()//2)-10)))
-        self.window.blit(self.numbers[12], (self.window.get_width()-35, self.window.get_height()-35))
+        if keyInput[1]: self.window.blit(self.numbers[1], ((self.window.get_width() // 4)+15,(self.window.get_height() // 4)+15))
+        if keyInput[2]: self.window.blit(self.numbers[2], ((self.window.get_width() // 4)*3 -35,(self.window.get_height() // 4)+15))
+        if keyInput[3]: self.window.blit(self.numbers[3], ((self.window.get_width() // 4)+15,(self.window.get_height() // 4)*3 - 35))
+        if keyInput[4]: self.window.blit(self.numbers[4], ((self.window.get_width() // 4)*3 -35, (self.window.get_height() // 4)*3 - 35))
+        if keyInput[0]: self.window.blit(self.numbers[0], ((self.window.get_width() // 2)-10, (self.window.get_height() // 2)-10))
+        # self.window.blit(self.numbers[5], (15, 15))
+        # self.window.blit(self.numbers[10], (15, self.window.get_height()-35))
+        # self.window.blit(self.numbers[7], (self.window.get_width()-35, 15))
+        # self.window.blit(self.numbers[6], ((self.window.get_width() // 2) -10, 15))
+        # self.window.blit(self.numbers[11], ((self.window.get_width() // 2) -10, self.window.get_height()-35))
+        # self.window.blit(self.numbers[8], (15, (self.window.get_height()//2)-10))
+        # self.window.blit(self.numbers[9], ((self.window.get_width()-35, (self.window.get_height()//2)-10)))
+        # self.window.blit(self.numbers[12], (self.window.get_width()-35, self.window.get_height()-35))
         
         
         pygame.display.update()
@@ -420,10 +419,10 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
             _, fra = capture.read()
             fra = imutils.resize(fra, width=640)
             blink_check = detect_blink(fra)
-            if blink_check:
-                print("blink!!")
-            else:
-                print("Nope")
+            # if blink_check:
+            #     print("blink!!")
+            # else:
+            #     print("Nope")
 
             face_2d = []
             face_3d = []
@@ -449,27 +448,27 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
 
         # 시선 기초 보정값
         x, y = p2
-        x += 50
-        # y += 100
-        if x > 600:
-            x *= 1.15
-        if y > 300:
-            y *= 2.1
-        else:
-            y *= 2.0
-            
-    
+        # x += 50
+        # # y += 100
+        # if x > 600:
+        #     x *= 1.15
+        # if y > 300:
+        #     y *= 2.1
+        # else:
+        #     y *= 2.0
+
 
         if calibration_x != 0 and x > 0:
-            print("----calibration 중----")
+            # print("----calibration 중----")
             x *= 1.0 + calibration_x / x
 
         if calibration_y != 0 and y > 0:
-            print("----calibration 중----")
+            # print("----calibration 중----")
+            print(y, calibration_y, 1.0 + calibration_y / y)
             y *= 1.0 + calibration_y / y
 
         pos_x, pos_y = x, y
-        print(x, y)
+        # print(x, y)
         # class에서 그리기 위치
 
         pygame_Calib(x, y)
