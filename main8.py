@@ -313,6 +313,15 @@ h = capture.get(cv.CAP_PROP_FRAME_HEIGHT)
 
 # capture.set(cv.CAP_PROP_FRAME_WIDTH, w*2) # 가로
 # capture.set(cv.CAP_PROP_FRAME_HEIGHT, h*2) # 세로
+def calculate_EAR(eye):
+   # calculate the vertical distances
+   y1 = dist.euclidean(eye[1], eye[5])
+   y2 = dist.euclidean(eye[2], eye[4])
+   # calculate the horizontal distance
+   x1 = dist.euclidean(eye[0], eye[3])
+   # calculate the EAR
+   EAR = (y1+y2) / x1
+   return EAR
 
 # Variables
 blink_thresh = 0.45 - 0.05
@@ -460,14 +469,17 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
 
             # blink
             # ==============================
+            # frame
             _, fra = capture.read()
             fra = imutils.resize(fra, width=640)
-            blink_check = detect_blink(fra)
-            # if blink_check:
-            #     print("blink!!")
-            # else:
-            #     print("Nope")
-
+            blink_check = detect_blink(fra, frame)
+            if blink_check:
+                print("blink!!")
+                pygame.event.post(pygame.event.Event(pygame.MOUSEBUTTONDOWN, button=1))  # 마우스 버튼 누르기
+                time.sleep(0.1)
+                pygame.event.post(pygame.event.Event(pygame.MOUSEBUTTONUP, button=1))  # 마우스 버튼 떼기
+            else:
+                print("Nope")
             face_2d = []
             face_3d = []
             
