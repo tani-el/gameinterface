@@ -18,6 +18,22 @@ from pygame.locals import *
 
 calibration_x, calibration_y = 0, 0
 
+
+def calibration(x,y):
+    global calibration_x, calibration_y
+
+keyInput = [True, True, True, True, True]
+clicknum = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+tar = 0
+
+startCalib = False
+endCalib = False
+
+pygame.init()
+pygame.display.set_caption("Simple PyGame Example")
+
+
+num_check = [True, True, True, True, True]
 pos_x = 200
 pos_y = 200
 
@@ -38,23 +54,7 @@ capture = cv.VideoCapture(0)
 w = capture.get(cv.CAP_PROP_FRAME_WIDTH)
 h = capture.get(cv.CAP_PROP_FRAME_HEIGHT)
 
-def calibration(x,y):
-    global calibration_x, calibration_y
-
-keyInput = [True, True, True, True, True]
-#calib = [False,False,False,False,False]
-clicknum = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-tar = 0
-
-startCalib = False
-endCalib = False
-
-pygame.init()
-pygame.display.set_caption("Simple PyGame Example")
-
 cal_window = pygame.display.set_mode((w, h))
-num_check = [True, True, True, True, True]
-
 
 class SpriteObject(pygame.sprite.Sprite):
     def __init__(self, x, y, color):
@@ -291,9 +291,6 @@ class pygame_Calib():
         
    
 
-
-
-
 # capture.set(cv.CAP_PROP_FRAME_WIDTH, w*2) # 가로
 # capture.set(cv.CAP_PROP_FRAME_HEIGHT, h*2) # 세로
 def calculate_EAR(eye):
@@ -373,6 +370,7 @@ def detect_blink(frame, real_frame):
                 cv.putText(real_frame, f'Remaining Time: {remaining_time:.1f}s', (30, 60), cv.FONT_HERSHEY_DUPLEX, 1,
                            (0, 0, 255), 1)
                 return False
+
 
 
 
@@ -511,7 +509,6 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
         
 
 
-
 # Num_Game 을 돌리기 위한 코드-------------------
 game = Num_Game.NumGame(pos_x, pos_y)
 
@@ -543,167 +540,11 @@ def run_game():
 '''
 
 
-
-
 # Create and start the game thread
 game_thread = threading.Thread(target=run_game)
-state = STATE_NUM_GAME
+#state = STATE_NUM_GAME
+#game_thread.start()
 #-----------------------------------------------
-
-
-with mp_face_mesh.FaceMesh(max_num_faces=1,
-                           refine_landmarks=True,
-                           min_detection_confidence=0.5,
-                           min_tracking_confidence=0.5
-                           ) as face_mesh:
-    while True:
-        # if capture.get(cv.CAP_PROP_POS_FRAMES) == capture.get(cv.CAP_PROP_FRAME_COUNT):
-        #    capture.set(cv.CAP_PROP_POS_FRAMES, 0)
-        ret, frame = capture.read()
-        if not ret:
-            break
-        img_h, img_w = frame.shape[:2]
-        frame = cv.flip(frame, 1)
-        
-        image = cv.cvtColor(frame, cv.COLOR_RGB2BGR)
-        results = face_mesh.process(image)
-        if results.multi_face_landmarks:
-            mesh_points = np.array([np.multiply([p.x, p.y], [img_w, img_h]).astype(int)
-                                    for p in results.multi_face_landmarks[0].landmark])
-
-            # drawing left/right eye
-            cv.polylines(frame, [mesh_points[LEFT_EYE]], True, (0, 255, 0), 2, cv.LINE_AA)
-            cv.polylines(frame, [mesh_points[RIGHT_EYE]], True, (0, 255, 0), 2, cv.LINE_AA)
-
-            # drawing face outline
-            cv.polylines(frame, [mesh_points[FACE_OUTLINE]], True, (255, 255, 255), 2, cv.LINE_AA)
-            # cv.polylines(frame, [mesh_points[FACE_HEAD_POSE_LANDMARKS ]], True, (255,255,255),2,cv.LINE_AA)
-
-            # drawing left/right iris
-            (l_cx, l_cy), l_rad = cv.minEnclosingCircle(mesh_points[LEFT_IRIS])
-            (r_cx, r_cy), r_rad = cv.minEnclosingCircle(mesh_points[RIGHT_IRIS])
-            l_center = np.array([l_cx, l_cy], dtype=np.int32)
-            r_center = np.array([r_cx, r_cy], dtype=np.int32)
-            cv.circle(frame, l_center, int(l_rad), (0, 0, 255), 2, cv.LINE_AA)
-            cv.circle(frame, r_center, int(r_rad), (0, 0, 255), 2, cv.LINE_AA)
-            # drawing all face mesh points as dots
-            for pt in mesh_points:
-                (cx, cy) = pt[0], pt[1]
-                cv.circle(frame, [cx, cy], 1, (255, 255, 255), -1, cv.LINE_AA)
-
-            for idx, lm in enumerate(results.multi_face_landmarks[0].landmark):
-                if idx in FACE_HEAD_POSE_LANDMARKS:
-                    if idx == 1:
-                        nose_2d = (lm.x * img_w, lm.y * img_h)
-                        nose_3d = (lm.x * img_w, lm.y * img_h, lm.z * 3000)
-
-                    x, y = int(lm.x * img_w), int(lm.y * img_h)
-
-                    face_2d.append([x, y])
-                    face_3d.append([x, y, lm.z])
-
-            face_2d = np.array(face_2d, dtype=np.float64)
-
-            face_3d = np.array(face_3d, dtype=np.float64)
-
-            focal_len = 1 * img_w
-
-            camera_mat = np.array([[focal_len, 0, img_h / 2],
-                                   [0, focal_len, img_w / 2],
-                                   [0, 0, 1]])
-
-            dist_mat = np.zeros((4, 1), dtype=np.float64)
-
-            success, rot_vec, trans_vec = cv.solvePnP(face_3d, face_2d, camera_mat, dist_mat)
-
-            rot_mat, jac = cv.Rodrigues(rot_vec)
-            angles, mtxR, mtxQ, Qx, Qy, Qz = cv.RQDecomp3x3(rot_mat)
-            x = angles[0] * 360
-            y = angles[1] * 360
-            z = angles[2] * 360
-
-            # nose_3d_projection, jacobian = cv.projectPoints(nose_3d, rot_vec, trans_vec, camera_mat, dist_mat)
-
-            p1 = (int(nose_2d[0]), int(nose_2d[1]))
-            p2_y = int(nose_2d[1] - x * 10) + 100
-            
-            p2 = (int(nose_2d[0] + y * 10),  p2_y)  #p2 보정
-
-            # Find the center point of the face
-            face_center = np.mean(mesh_points[FACE_OUTLINE], axis=0).astype(int)
-
-            # Find the center point of the left and right eye
-            left_eye_center = np.mean(mesh_points[LEFT_EYE], axis=0).astype(int)
-            right_eye_center = np.mean(mesh_points[RIGHT_EYE], axis=0).astype(int)
-
-            # Draw a line from the face center to the midpoint of the left and right eye
-            cv.line(frame, tuple((left_eye_center + right_eye_center) // 2), tuple(face_center), (255, 255, 255), 3)
-            cv.line(frame, p1, p2, (255, 255, 0), 3)
-
-
-
-
-            # blink
-            # ==============================
-            # frame
-            _, fra = capture.read()
-            fra = imutils.resize(fra, width=640)
-            blink_check = detect_blink(fra, frame)
-            if blink_check:
-                print("blink!!")
-                pygame.event.post(pygame.event.Event(pygame.MOUSEBUTTONDOWN, button=1))  # 마우스 버튼 누르기
-                time.sleep(0.1)
-                pygame.event.post(pygame.event.Event(pygame.MOUSEBUTTONUP, button=1))  # 마우스 버튼 떼기
-            else:
-                print("Nope")
-            face_2d = []
-            face_3d = []
-            
-            
-        
-
-        cv.imshow('Main', frame)
-        key = cv.waitKey(1)
-
-        if (key == ord('q')):
-            break
-        if (key == ord('c')):
-            pass
-
-        # ------
-        # pygame
-        # ------
-        x, y = p2
-        x += 50
-        # y += 100
-        if x > 600:
-            x *= 1.15
-        if y > 300:
-            y *= 2.1
-        else:
-            y *= 2.0
-
-        pos_x, pos_y = x, y
-        # print(x, y)
-        
-        if state == STATE_CALIBRATION:
-            # 여기에서 cali게임 실행하세요
-            # 각 state가 끝날때 STATE = 다음 스테이트로 바꿔주세요
-            pass
-
-        # Num_Game 을 돌리기 위해 queue에다 넣어주고 threading함
-        # Num_Game 을 돌리기 위한 코드
-        if state == STATE_NUM_GAME:
-            game_thread.start()
-        game.set_target(pos_x, pos_y)
-
-        if state == STATE_SCORE:
-            # 여기에서 score 창 클래스 띄우기
-            pass
-        # Add updated coordinates to the queue
-        # coord_queue.put((pos_x, pos_y))
-        state = STATE_NONE
-
 
 
 
