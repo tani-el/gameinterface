@@ -18,7 +18,7 @@ import time
 import merge_game as Num_Game
 # for test
 
-
+STATE_CALIBRATION, STATE_NUM_GAME, STATE_SCORE = range(3)
     
 keyInput = [True, True, True, True, True]
 
