@@ -15,8 +15,8 @@ class NumGame:
 
         # 게임 화면 초기화
         self.screen_width = 450
-        self.screen_height = 900
-        self.screen = pygame.display.set_mode((450, 800))
+        self.screen_height = 800
+        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         pygame.display.set_caption("Loading...")
 
         # x, y 좌표
@@ -37,14 +37,14 @@ class NumGame:
         self.game_count = 0  # 게임 횟수 변수
 
         # 게임 화면 설정
-        self.Num_screen = pygame.display.set_mode((450, 800))
+        self.Num_screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         pygame.display.set_caption("숫자클릭게임")
 
         # 결과 텍스트 생성
         self.result_text = self.font.render("score: ", True, (0, 0, 0))  # 최종 점수 출력
         self.result_rect = self.result_text.get_rect(center=(225, 225))
 
-        self.running = True
+        self.running = False
         self.clicked_indices = []  # 클릭된 버튼의 인덱스 리스트
 
         # jump
@@ -97,6 +97,32 @@ class NumGame:
         self.obstacle_timer = time.time() + random.uniform(4, 6)
 
         self.collision_occurred = False
+
+        self.start_NumGame = False
+
+    def Num_Game_guide(self):
+  
+        font = pygame.font.SysFont(None,30)
+        self.Num_screen.fill((255, 255, 255))
+        
+        if self.start_NumGame == False:
+            
+            intro = font.render('Waiting for the Window to be activated...', True, (255, 255, 255))
+            intro2 = font.render("Click this window to Start",True, (255, 255, 255))
+            self.screen.blit(intro, ((self.screen_width//2)-200, (self.screen_height//2)-10))
+            self.screen.blit(intro2, ((self.screen_width//2)-100,(self.screen_height//2)+10))
+            pygame.display.update()
+                
+            for i in pygame.event.get():
+                if i.type == pygame.QUIT:
+                    self.running = False
+                
+                #For detecting mouse click
+                if i.type == pygame.MOUSEBUTTONDOWN:
+                    self.start_NumGame = True
+                    self.running = True
+                    
+
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -182,7 +208,7 @@ class NumGame:
             self.score = 0
 
         # 게임 종료 조건 확인
-        if self.init == 10:
+        if self.init == 10 and self.start_NumGame:
             self.game_count += 1
             if self.game_count == 10:
                 self.running = False
@@ -248,9 +274,11 @@ class NumGame:
         self.x, self.y = x, y
 
     def run(self):
+        while not self.start_NumGame:
+            self.Num_Game_guide()
+
         while self.running:
             self.update()
-
             self.draw()
             self.clock.tick(60)
             # print(self.x, self.y)
@@ -259,6 +287,7 @@ class NumGame:
         self.Num_screen.fill((255, 255, 255))
         self.Num_screen.blit(self.result_text, self.result_rect)
         pygame.display.flip()
+
         # 결과 화면 유지
         running = True
         while running:
