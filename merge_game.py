@@ -44,7 +44,7 @@ class NumGame:
         self.result_text = self.font.render("score: ", True, (0, 0, 0))  # 최종 점수 출력
         self.result_rect = self.result_text.get_rect(center=(225, 225))
 
-        self.running = False
+        self.running = True
         self.clicked_indices = []  # 클릭된 버튼의 인덱스 리스트
 
         # jump
@@ -103,7 +103,7 @@ class NumGame:
     def Num_Game_guide(self):
   
         font = pygame.font.SysFont(None,30)
-        self.Num_screen.fill((255, 255, 255))
+        self.Num_screen.fill((0,0,0))
         
         if self.start_NumGame == False:
             
@@ -274,8 +274,8 @@ class NumGame:
         self.x, self.y = x, y
 
     def run(self):
-        while not self.start_NumGame:
-            self.Num_Game_guide()
+        # while not self.start_NumGame:
+        #     self.Num_Game_guide()
 
         while self.running:
             self.update()

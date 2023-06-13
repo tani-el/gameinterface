@@ -18,6 +18,9 @@ from pygame.locals import *
 
 calibration_x, calibration_y = 0, 0
 
+STATE_CALIBRATION, STATE_NUM_GAME, STATE_SCORE, STATE_NONE = range(4)
+state = STATE_NONE
+
 
 def calibration(x,y):
     global calibration_x, calibration_y
@@ -30,7 +33,7 @@ startCalib = False
 endCalib = False
 
 pygame.init()
-pygame.display.set_caption("Simple PyGame Example")
+pygame.display.set_caption("Eye tracking")
 
 
 num_check = [True, True, True, True, True]
@@ -162,6 +165,8 @@ class pygame_Calib():
         self.black = (0, 0, 0)
         self.yellow = (255,255,0)
         global calibration_x, calibration_y 
+
+        global state
         
         self.x = x
         self.y = y
@@ -217,12 +222,13 @@ class pygame_Calib():
         global startCalib
         global endCalib
         global tar
+        global state
         
         font = pygame.font.SysFont(None,30)
         self.window.fill(self.black)
         
         
-        if startCalib == False:
+        if not startCalib:
             
             intro = font.render('Waiting for the Window to be activated...', True, (255, 255, 255))
             intro2 = font.render("Click this window to Start",True, (255, 255, 255))
@@ -241,7 +247,7 @@ class pygame_Calib():
                     return
 
          
-        elif endCalib == False:
+        elif not endCalib:
             self.draw_pygame()
         
         else:
@@ -249,16 +255,19 @@ class pygame_Calib():
             outro2 = font.render("Press [SPACE] to Start TEST",True, (255, 255, 255))
             self.window.blit(outro, ((w//2)-100,(h//2)-10))
             self.window.blit(outro2, ((w//2)-100,(h//2)+10))
+            state = STATE_NUM_GAME
             pygame.display.update()
                 
             for i in pygame.event.get():
+                print("다음 state")
                 if i.type == pygame.QUIT:
                     return
                 
                 #For detecting mouse click
                 if i.type == pygame.K_SPACE:
                     #게임 시작
-            
+                    state = STATE_NUM_GAME
+                    
                     pygame.quit()
                     
             
@@ -317,10 +326,13 @@ landmark_predict = dlib.shape_predictor(
    'shape_predictor_68_face_landmarks.dat')
 blink_detected = False  # Blink가 감지되었는지 여부를 나타내는 전역 변수
 blink_detected_time = 0  # Blink가 감지된 시간을 저장할 전역 변수
+
 def detect_blink(frame, real_frame):
     global count_frame
     global blink_detected
     global blink_detected_time
+
+    global endCalib
 
     # blink 쿨타임 추가
     blink_cool_time = 4.0
@@ -345,32 +357,78 @@ def detect_blink(frame, real_frame):
         # Calculate the average EAR.
         avg_ear = (left_EAR + right_EAR) / 2
         # Check if the average EAR is less than the blink threshold.
-        if avg_ear < blink_thresh:
-            # Blink가 감지된 후에는 5초 동안 감지를 쉬도록 처리
-            if not blink_detected:
-                blink_detected = True
-                count_frame += 1  # incrementing the frame count
-                blink_detected_time = time.time()
-                cv.putText(real_frame, 'Blink!', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (0, 0, 255), 1)
-                return True
-        else:
-            if count_frame >= succ_frame and not blink_detected:
-                cv.putText(real_frame, 'Blink Detecting...', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
-                return False
+        if endCalib:
+            if avg_ear < blink_thresh:
+                # Blink가 감지된 후에는 5초 동안 감지를 쉬도록 처리
+                if not blink_detected:
+                    blink_detected = True
+                    count_frame += 1  # incrementing the frame count
+                    blink_detected_time = time.time()
+                    cv.putText(real_frame, 'Blink!', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (0, 0, 255), 1)
+                    return True
             else:
-                # Blink가 감지된 후에는 4초 동안 감지를 쉬도록 처리
-                if blink_detected:
-                    if time.time() - blink_detected_time >= blink_cool_time:
-                        blink_detected = False
-                count_frame = 0
-                cv.putText(real_frame, 'Blink Detecting...', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 1)
+                if count_frame >= succ_frame and not blink_detected:
+                    cv.putText(real_frame, 'Blink Detecting...', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
+                    return False
+                else:
+                    # Blink가 감지된 후에는 4초 동안 감지를 쉬도록 처리
+                    if blink_detected:
+                        if time.time() - blink_detected_time >= blink_cool_time:
+                            blink_detected = False
+                    count_frame = 0
+                    cv.putText(real_frame, 'Blink Detecting...', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 1)
 
-                # 감지까지 남은 시간을 화면에 표시
-                remaining_time = max(blink_cool_time - (time.time() - blink_detected_time), 0)
-                cv.putText(real_frame, f'Remaining Time: {remaining_time:.1f}s', (30, 60), cv.FONT_HERSHEY_DUPLEX, 1,
-                           (0, 0, 255), 1)
-                return False
+                    # 감지까지 남은 시간을 화면에 표시
+                    remaining_time = max(blink_cool_time - (time.time() - blink_detected_time), 0)
+                    cv.putText(real_frame, f'Remaining Time: {remaining_time:.1f}s', (30, 60), cv.FONT_HERSHEY_DUPLEX, 1,
+                            (0, 0, 255), 1)
+                    return False
 
+
+
+
+
+
+
+
+
+# Num_Game 을 돌리기 위한 코드-------------------
+game = Num_Game.NumGame(pos_x, pos_y)
+
+# Create a queue for communication between threads
+coord_queue = queue.Queue()
+
+def run_game():
+    while True:
+        # Check if there are updated coordinates in the queue
+        if not coord_queue.empty():
+            pos_x, pos_y = coord_queue.get()
+            game.set_target(pos_x, pos_y)
+        
+        game.run()
+    # 점수판 함수 데모 제작중
+'''    
+        Num_Game.result_screen.fill((255, 255, 255))
+        #Num game 점수
+        Num_Game.result_screen.blit(Num_Game.result_text, Num_Game.result_rect)
+        #T-RexRuner 점수(임시)
+        #Dino_Run.result_screen.blit(Dino_Run.result_text, Dino_Run.result_rect)
+        pygame.display.flip()
+        # 결과 화면 유지
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+'''
+
+
+# Create and start the game thread
+game_thread = threading.Thread(target=run_game)
+# 시작위한 STATE 설정
+state = STATE_CALIBRATION
+print(state)
+#-----------------------------------------------
 
 
 
@@ -381,7 +439,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
                            ) as face_mesh:
     
     
-    
+    cal_window = pygame.display.set_mode((w, h))
     while True:
         # if capture.get(cv.CAP_PROP_POS_FRAMES) == capture.get(cv.CAP_PROP_FRAME_COUNT):
         #    capture.set(cv.CAP_PROP_POS_FRAMES, 0)
@@ -460,7 +518,8 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
                 time.sleep(0.1)
                 pygame.event.post(pygame.event.Event(pygame.MOUSEBUTTONUP, button=1))  # 마우스 버튼 떼기
             else:
-                print("Nope")
+                # print("Nope")
+                pass
             face_2d = []
             face_3d = []
             
@@ -484,14 +543,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
 
         # 시선 기초 보정값
         x, y = p2
-        # x += 50
-        # # y += 100
-        # if x > 600:
-        #     x *= 1.15
-        # if y > 300:
-        #     y *= 2.1
-        # else:
-        #     y *= 2.0
+
 
 
         if calibration_x != 0 and x > 0:
@@ -500,59 +552,25 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
 
         if calibration_y != 0 and y > 0:
             # print("----calibration 중----")
-            print(y, calibration_y, 1.0 + calibration_y / y)
             y *= 1.0 + calibration_y / y
 
         pos_x, pos_y = x, y
-
-        pygame_Calib(x, y)
+        if state == 0 and not endCalib:
+            print("Calib_실행")
+            pygame_Calib(x, y)
+        elif state == 1:
+            print("Num_Game 실행")
+            
+            game_thread.start()
+            state = STATE_NONE
+            # Signal the game thread to exit
+            # Num_Game 을 돌리기 위한 코드
+            # game_thread.join()
+        elif state == STATE_SCORE:
+            # 여기에서 score 창 클래스 띄우기
+            pass
         
-
-
-# Num_Game 을 돌리기 위한 코드-------------------
-game = Num_Game.NumGame(pos_x, pos_y)
-
-# Create a queue for communication between threads
-coord_queue = queue.Queue()
-
-def run_game():
-    while True:
-        # Check if there are updated coordinates in the queue
-        if not coord_queue.empty():
-            pos_x, pos_y = coord_queue.get()
-            game.set_target(pos_x, pos_y)
         
-        game.run()
-    # 점수판 함수 데모 제작중
-'''    
-        Num_Game.result_screen.fill((255, 255, 255))
-        #Num game 점수
-        Num_Game.result_screen.blit(Num_Game.result_text, Num_Game.result_rect)
-        #T-RexRuner 점수(임시)
-        #Dino_Run.result_screen.blit(Dino_Run.result_text, Dino_Run.result_rect)
-        pygame.display.flip()
-        # 결과 화면 유지
-        running = True
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-'''
-
-
-# Create and start the game thread
-game_thread = threading.Thread(target=run_game)
-#state = STATE_NUM_GAME
-#game_thread.start()
-#-----------------------------------------------
-
-
-
-
-# Signal the game thread to exit
-# Num_Game 을 돌리기 위한 코드
-game_thread.join()
-
 
 
 
