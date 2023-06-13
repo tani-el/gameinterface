@@ -9,6 +9,7 @@ import mediapipe as mp
 import numpy as np
 import cv2 as cv
 import pygame
+import time
 
 from pygame.locals import *
 import dlib  # for face and landmark detection
@@ -302,70 +303,74 @@ h = capture.get(cv.CAP_PROP_FRAME_HEIGHT)
 # capture.set(cv.CAP_PROP_FRAME_WIDTH, w*2) # 가로
 # capture.set(cv.CAP_PROP_FRAME_HEIGHT, h*2) # 세로
 
-
-# defining a function to calculate the EAR
-def calculate_EAR(eye):
-    # calculate the vertical distances
-    y1 = dist.euclidean(eye[1], eye[5])
-    y2 = dist.euclidean(eye[2], eye[4])
-
-    # calculate the horizontal distance
-    x1 = dist.euclidean(eye[0], eye[3])
-
-    # calculate the EAR
-    EAR = (y1 + y2) / x1
-    return EAR
-
-
 # Variables
-blink_thresh = 0.45
+blink_thresh = 0.45 - 0.05
 succ_frame = 2
 count_frame = 0
-
 # Eye landmarks
 (L_start, L_end) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
 (R_start, R_end) = face_utils.FACIAL_LANDMARKS_IDXS['right_eye']
-
 # Initializing the Models for Landmark and
 # face Detection
 detector = dlib.get_frontal_face_detector()
-landmark_predict = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
+landmark_predict = dlib.shape_predictor(
+   'shape_predictor_68_face_landmarks.dat')
+blink_detected = False  # Blink가 감지되었는지 여부를 나타내는 전역 변수
+blink_detected_time = 0  # Blink가 감지된 시간을 저장할 전역 변수
+def detect_blink(frame, real_frame):
+    global count_frame
+    global blink_detected
+    global blink_detected_time
 
+    # blink 쿨타임 추가
+    blink_cool_time = 4.0
 
-def detect_blink(frame):
     # Convert the frame to grayscale.
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
     # Detect the faces in the frame.
     faces = detector(gray)
-
     # Loop over the faces.
     for face in faces:
-
         # Landmark detection.
         shape = landmark_predict(gray, face)
-
         # Convert the shape class directly to a list of (x,y) coordinates.
         shape = face_utils.shape_to_np(shape)
-
         # Extract the left and right eye landmarks.
         left_eye = shape[L_start:L_end]
         right_eye = shape[R_start:R_end]
-
         # Calculate the EAR
         left_EAR = calculate_EAR(left_eye)
         right_EAR = calculate_EAR(right_eye)
-
         # Calculate the average EAR.
         avg_ear = (left_EAR + right_EAR) / 2
-
         # Check if the average EAR is less than the blink threshold.
         if avg_ear < blink_thresh:
-            # Blink detected!
-            return True
+            # Blink가 감지된 후에는 5초 동안 감지를 쉬도록 처리
+            if not blink_detected:
+                blink_detected = True
+                count_frame += 1  # incrementing the frame count
+                blink_detected_time = time.time()
+                cv.putText(real_frame, 'Blink!', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (0, 0, 255), 1)
+                return True
+        else:
+            if count_frame >= succ_frame and not blink_detected:
+                cv.putText(real_frame, 'Blink Detecting...', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
+                return False
+            else:
+                # Blink가 감지된 후에는 4초 동안 감지를 쉬도록 처리
+                if blink_detected:
+                    if time.time() - blink_detected_time >= blink_cool_time:
+                        blink_detected = False
+                count_frame = 0
+                cv.putText(real_frame, 'Blink Detecting...', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 1)
 
-        # No blink detected.
-        return False
+                # 감지까지 남은 시간을 화면에 표시
+                remaining_time = max(blink_cool_time - (time.time() - blink_detected_time), 0)
+                cv.putText(real_frame, f'Remaining Time: {remaining_time:.1f}s', (30, 60), cv.FONT_HERSHEY_DUPLEX, 1,
+                           (0, 0, 255), 1)
+                return False
+
 
 
 with mp_face_mesh.FaceMesh(max_num_faces=1,
