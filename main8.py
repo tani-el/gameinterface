@@ -1,7 +1,3 @@
-import mediapipe as mp
-import numpy as np
-import cv2 as cv
-# import calibGame as py
 import dlib # for face and landmark detection
 import imutils
 # for calculating dist b/w the eye landmarks
@@ -13,27 +9,34 @@ import pygame
 import threading
 import queue
 import time
-
 import merge_game as Num_Game
-# for test
 import mediapipe as mp
 import numpy as np
 import cv2 as cv
 import pygame
-import time
-
 from pygame.locals import *
-import dlib  # for face and landmark detection
-import imutils
-# for calculating dist b/w the eye landmarks
-from scipy.spatial import distance as dist
-# to get the landmark ids of the left and right eyes
-# you can do this manually too
-from imutils import face_utils
-#import Num_Game as N_Game
 
 calibration_x, calibration_y = 0, 0
 
+pos_x = 200
+pos_y = 200
+
+LEFT_EYE = [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398]
+RIGHT_EYE = [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246]
+LEFT_IRIS = [474, 475, 476, 477]
+RIGHT_IRIS = [469, 470, 471, 472]
+FACE_OUTLINE = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323,
+                361, 288, 397, 365, 379, 378, 400, 377, 152, 148,
+                176, 149, 150, 136, 172, 58, 132, 93, 234, 127,
+                162, 21, 54, 103, 67, 109]
+FACE_HEAD_POSE_LANDMARKS = [1, 33, 61, 199, 291, 263]
+face_2d = []
+face_3d = []
+compensated_angle = [0, 0, 0]
+mp_face_mesh = mp.solutions.face_mesh
+capture = cv.VideoCapture(0)
+w = capture.get(cv.CAP_PROP_FRAME_WIDTH)
+h = capture.get(cv.CAP_PROP_FRAME_HEIGHT)
 
 def calibration(x,y):
     global calibration_x, calibration_y
@@ -49,7 +52,7 @@ endCalib = False
 pygame.init()
 pygame.display.set_caption("Simple PyGame Example")
 
-
+cal_window = pygame.display.set_mode((w, h))
 num_check = [True, True, True, True, True]
 
 
@@ -63,9 +66,6 @@ class SpriteObject(pygame.sprite.Sprite):
         self.hover_image = pygame.Surface((50, 50), pygame.SRCALPHA)
         pygame.draw.circle(self.hover_image, color, (25, 25), 25)
         pygame.draw.circle(self.hover_image, (255, 255, 255), (25, 25), 25, 4)  # 흰색으로 변하는 부분
-        
-
-        
 
         self.image = self.original_image
 
@@ -157,6 +157,7 @@ class pygame_Calib():
     def __init__(self,x,y):
         global tar
         global startCalib
+        global cal_window
         self.white = (255, 255, 255)
         self.black = (0, 0, 0)
         self.yellow = (255,255,0)
@@ -169,7 +170,7 @@ class pygame_Calib():
         
         self.clock = pygame.time.Clock()
         
-        self.window = pygame.display.set_mode((w, h))
+        self.window = cal_window
         self.font40 = pygame.font.SysFont(None, 40)
         self.clock = pygame.time.Clock()
         
@@ -246,8 +247,8 @@ class pygame_Calib():
         else:
             outro = font.render('Calibration finished!', True, (255, 255, 255))
             outro2 = font.render("Press [SPACE] to Start TEST",True, (255, 255, 255))
-            self.window.blit(outro, ((w//2)-110,(h//2)-10))
-            self.window.blit(outro2, ((w//2)-110,(h//2)+10))
+            self.window.blit(outro, ((w//2)-100,(h//2)-10))
+            self.window.blit(outro2, ((w//2)-100,(h//2)+10))
             pygame.display.update()
                 
             for i in pygame.event.get():
@@ -290,25 +291,7 @@ class pygame_Calib():
         
    
 
-pos_x = 200
-pos_y = 200
 
-LEFT_EYE = [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398]
-RIGHT_EYE = [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246]
-LEFT_IRIS = [474, 475, 476, 477]
-RIGHT_IRIS = [469, 470, 471, 472]
-FACE_OUTLINE = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323,
-                361, 288, 397, 365, 379, 378, 400, 377, 152, 148,
-                176, 149, 150, 136, 172, 58, 132, 93, 234, 127,
-                162, 21, 54, 103, 67, 109]
-FACE_HEAD_POSE_LANDMARKS = [1, 33, 61, 199, 291, 263]
-face_2d = []
-face_3d = []
-compensated_angle = [0, 0, 0]
-mp_face_mesh = mp.solutions.face_mesh
-capture = cv.VideoCapture(0)
-w = capture.get(cv.CAP_PROP_FRAME_WIDTH)
-h = capture.get(cv.CAP_PROP_FRAME_HEIGHT)
 
 
 # capture.set(cv.CAP_PROP_FRAME_WIDTH, w*2) # 가로
@@ -527,141 +510,6 @@ with mp_face_mesh.FaceMesh(max_num_faces=1,
         pygame_Calib(x, y)
         
 
-
-
-
-
-STATE_CALIBRATION, STATE_NUM_GAME, STATE_SCORE, STATE_NONE = range(4)
-    
-keyInput = [True, True, True, True, True]
-
-            
-pos_x = 200
-pos_y = 200
-
-state = STATE_CALIBRATION
-
-LEFT_EYE = [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398]
-RIGHT_EYE = [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246]
-
-LEFT_IRIS = [474, 475, 476, 477]
-RIGHT_IRIS = [469, 470, 471, 472]
-
-FACE_OUTLINE = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323,
-                361, 288, 397, 365, 379, 378, 400, 377, 152, 148,
-                176, 149, 150, 136, 172, 58, 132, 93, 234, 127,
-                162, 21, 54, 103, 67, 109]
-
-FACE_HEAD_POSE_LANDMARKS = [1, 33, 61, 199, 291, 263]
-
-face_2d = []
-face_3d = []
-
-compensated_angle = [0, 0, 0]
-
-mp_face_mesh = mp.solutions.face_mesh
-# capture = cv.VideoCapture('sample_vid.mp4')
-capture = cv.VideoCapture(0)
-w = capture.get(cv.CAP_PROP_FRAME_WIDTH)
-h = capture.get(cv.CAP_PROP_FRAME_HEIGHT)
-
-
-
-
-
-
-# defining a function to calculate the EAR
-def calculate_EAR(eye):
-
-   # calculate the vertical distances
-   y1 = dist.euclidean(eye[1], eye[5])
-   y2 = dist.euclidean(eye[2], eye[4])
-
-   # calculate the horizontal distance
-   x1 = dist.euclidean(eye[0], eye[3])
-
-   # calculate the EAR
-   EAR = (y1+y2) / x1
-   return EAR
-
-
-
-# Variables
-blink_thresh = 0.45 - 0.05
-succ_frame = 2
-count_frame = 0
-
-# Eye landmarks
-(L_start, L_end) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
-(R_start, R_end) = face_utils.FACIAL_LANDMARKS_IDXS['right_eye']
-
-# Initializing the Models for Landmark and
-# face Detection
-detector = dlib.get_frontal_face_detector()
-landmark_predict = dlib.shape_predictor(
-   'shape_predictor_68_face_landmarks.dat')
-
-blink_detected = False  # Blink가 감지되었는지 여부를 나타내는 전역 변수
-blink_detected_time = 0  # Blink가 감지된 시간을 저장할 전역 변수
-
-
-def detect_blink(frame, real_frame):
-    global count_frame
-    global blink_detected
-    global blink_detected_time
-
-    # blink 쿨타임 추가
-    blink_cool_time = 4.0
-
-    # Convert the frame to grayscale.
-    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-
-    # Detect the faces in the frame.
-    faces = detector(gray)
-
-    # Loop over the faces.
-    for face in faces:
-        # Landmark detection.
-        shape = landmark_predict(gray, face)
-        # Convert the shape class directly to a list of (x,y) coordinates.
-        shape = face_utils.shape_to_np(shape)
-        # Extract the left and right eye landmarks.
-        left_eye = shape[L_start:L_end]
-        right_eye = shape[R_start:R_end]
-
-        # Calculate the EAR
-        left_EAR = calculate_EAR(left_eye)
-        right_EAR = calculate_EAR(right_eye)
-
-        # Calculate the average EAR.
-        avg_ear = (left_EAR + right_EAR) / 2
-
-        # Check if the average EAR is less than the blink threshold.
-        if avg_ear < blink_thresh:
-            # Blink가 감지된 후에는 5초 동안 감지를 쉬도록 처리
-            if not blink_detected:
-                blink_detected = True
-                count_frame += 1  # incrementing the frame count
-                blink_detected_time = time.time()
-                cv.putText(real_frame, 'Blink!', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (0, 0, 255), 1)
-                return True
-        else:
-            if count_frame >= succ_frame and not blink_detected:
-                cv.putText(real_frame, 'Blink Detecting...', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (0, 200, 0), 1)
-                return False
-            else:
-                # Blink가 감지된 후에는 4초 동안 감지를 쉬도록 처리
-                if blink_detected:
-                    if time.time() - blink_detected_time >= blink_cool_time:
-                        blink_detected = False
-                count_frame = 0
-                cv.putText(real_frame, 'Blink Detecting...', (30, 30), cv.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 1)
-
-                # 감지까지 남은 시간을 화면에 표시
-                remaining_time = max(blink_cool_time - (time.time() - blink_detected_time), 0)
-                cv.putText(real_frame, f'Remaining Time: {remaining_time:.1f}s', (30, 60), cv.FONT_HERSHEY_DUPLEX, 1,
-                           (0, 0, 255), 1)
-                return False
 
 
 # Num_Game 을 돌리기 위한 코드-------------------
