@@ -67,11 +67,22 @@ class NumGame:
 
         # 같은 폴더에 있는 파일의 경로를 생성
         file_path = os.path.join(script_dir, 'resources.png')
+        file_path_Circle = os.path.join(script_dir, 'Circle.png')
+        file_path_X = os.path.join(script_dir, 'X.png')
 
         # extracting game items and characters form the resource.png image.
         self.player_init = Image.open(file_path).crop((77, 5, 163, 96)).convert("RGBA")
         self.player_init = self.player_init.resize(list(map(lambda x: x // 2, self.player_init.size)))
 
+
+        # 이미지 표시 여부
+        self.show_image_circle = False
+        self.show_image_Red_X = False
+
+        self.Circle = pygame.image.load(file_path_Circle)
+        self.Circle = pygame.transform.scale(self.Circle, (100, 100))
+        self.Red_X = pygame.image.load(file_path_X)
+        self.Red_X = pygame.transform.scale(self.Red_X, (100, 100))
 
         #장애물
         self.obstacle_x = self.screen_width
@@ -113,16 +124,20 @@ class NumGame:
                                 self.clicked_indices.append(i)  # 클릭된 버튼의 인덱스 추가
                     if clicked_number is not None:
                         if self.is_check:  # 최댓값이 맞다면 점수를 높임
+                            self.show_image_circle = True
                             self.score += 10
                             self.is_check = False
                             self.numbers = random.sample(range(1, 101), 9)
                             self.max_number = max(self.numbers)
                         else:
                             self.score -= 10
+                            self.show_image_Red_X = True
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:  # 왼쪽 마우스 버튼 뗐을 때
                     self.clicked_indices = []  # 클릭된 버튼의 인덱스 리스트 초기화
+                    self.show_image_circle = False # 그림 초기화
+                    self.show_image_Red_X = False
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
@@ -184,23 +199,32 @@ class NumGame:
         # 화면 초기화
         self.screen.fill((0, 0, 0))
 
+         # 커서 그리기
+        pos_x, pos_y = self.x, self.y
+        pygame.draw.circle(window, (255, 255, 255), (pos_x, pos_y), 10)
+        pygame.mouse.set_pos(pos_x, pos_y)
+
         # 숫자 그리기
         self.number_rects = []
         for i, number in enumerate(self.numbers):
             rect = pygame.Rect((i % 3) * 130 + 50, (i // 3) * 130 + 50, 100, 100)
             if i in self.clicked_indices:
-                pygame.draw.rect(self.screen, (255, 0, 0), rect)  # 클릭된 버튼은 빨간색으로 표시
+                pygame.draw.rect(self.screen, (255, 255, 255), rect)  # 클릭된 버튼은 하얀색으로 표시
             else:
                 pygame.draw.rect(self.screen, (0, 0, 255), rect)  # 클릭되지 않은 버튼은 파란색으로 표시
             number_text = self.font.render(str(number), True, (255, 255, 255))
             number_rect = number_text.get_rect(center=rect.center)
             self.screen.blit(number_text, number_rect)
             self.number_rects.append(rect)
+            if i in self.clicked_indices:
+                if self.show_image_circle:
+                    self.screen.blit(self.Circle, (self.x-50, self.y-50)) # 맞으면 동그라미
+                elif self.show_image_Red_X:
+                    self.screen.blit(self.Red_X, (self.x-50, self.y-50)) # 틀리면 x
 
-        # 커서 그리기
-        pos_x, pos_y = self.x, self.y
-        pygame.draw.circle(window, (255, 255, 255), (pos_x, pos_y), 10)
-        pygame.mouse.set_pos(pos_x, pos_y)
+               
+
+       
 
         # 점수 그리기
         score_text = self.font.render("Score: " + str(self.score), True, (255, 255, 255))
