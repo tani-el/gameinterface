@@ -244,8 +244,8 @@ class pygame_Calib():
         else:
             outro = font.render('Calibration finished!', True, (255, 255, 255))
             outro2 = font.render("Press [SPACE] to Start TEST",True, (255, 255, 255))
-            self.window.blit(outro, ((w//2)-80,h//2-10))
-            self.window.blit(outro2, ((w//2)-80,(h//2)+10))
+            self.window.blit(outro, ((w//2)-110,(h//2)-10))
+            self.window.blit(outro2, ((w//2)-110,(h//2)+10))
             pygame.display.update()
                 
             for i in pygame.event.get():
@@ -278,14 +278,7 @@ class pygame_Calib():
         if keyInput[3]: self.window.blit(self.numbers[3], ((self.window.get_width() // 4)+15,(self.window.get_height() // 4)*3 - 35))
         if keyInput[4]: self.window.blit(self.numbers[4], ((self.window.get_width() // 4)*3 -35, (self.window.get_height() // 4)*3 - 35))
         if keyInput[0]: self.window.blit(self.numbers[0], ((self.window.get_width() // 2)-10, (self.window.get_height() // 2)-10))
-        # self.window.blit(self.numbers[5], (15, 15))
-        # self.window.blit(self.numbers[10], (15, self.window.get_height()-35))
-        # self.window.blit(self.numbers[7], (self.window.get_width()-35, 15))
-        # self.window.blit(self.numbers[6], ((self.window.get_width() // 2) -10, 15))
-        # self.window.blit(self.numbers[11], ((self.window.get_width() // 2) -10, self.window.get_height()-35))
-        # self.window.blit(self.numbers[8], (15, (self.window.get_height()//2)-10))
-        # self.window.blit(self.numbers[9], ((self.window.get_width()-35, (self.window.get_height()//2)-10)))
-        # self.window.blit(self.numbers[12], (self.window.get_width()-35, self.window.get_height()-35))
+
         
         if keyInput[0] == False and keyInput[1] == False and keyInput[3] == False and keyInput[3] == False and keyInput[4] == False:
             endCalib = True
