@@ -99,17 +99,17 @@ class NumGame:
         self.Red_X = pygame.transform.scale(self.Red_X, (100, 100))
 
         self.Score_0 = pygame.image.load(file_path_Score_0)
-        self.Score_0 = pygame.transform.scale(self.Score_0, (200, 200))
+        self.Score_0 = pygame.transform.scale(self.Score_0, (400, 400))
         self.Score_1 = pygame.image.load(file_path_Score_1)
-        self.Score_1 = pygame.transform.scale(self.Score_1, (200, 200))
+        self.Score_1 = pygame.transform.scale(self.Score_1, (400, 400))
         self.Score_2 = pygame.image.load(file_path_Score_2)
-        self.Score_2 = pygame.transform.scale(self.Score_2, (200, 200))
+        self.Score_2 = pygame.transform.scale(self.Score_2, (400, 400))
         self.Score_3 = pygame.image.load(file_path_Score_3)
-        self.Score_3 = pygame.transform.scale(self.Score_3, (200, 200))
+        self.Score_3 = pygame.transform.scale(self.Score_3, (400, 400))
         self.Score_4 = pygame.image.load(file_path_Score_4)
-        self.Score_4 = pygame.transform.scale(self.Score_4, (200, 200))
+        self.Score_4 = pygame.transform.scale(self.Score_4, (400, 400))
         self.Score_5 = pygame.image.load(file_path_Score_5)
-        self.Score_5 = pygame.transform.scale(self.Score_5, (200, 200))
+        self.Score_5 = pygame.transform.scale(self.Score_5, (400, 400))
 
 
         # 사운드
@@ -235,8 +235,9 @@ class NumGame:
         if self.score < 0:
             self.score = 0
 
+        print("init", self.init, "game_count", self.game_count)
         # 게임 종료 조건 확인
-        if self.init == 10 and self.start_NumGame:
+        if self.init >= 10:
             self.game_count += 1
             if self.game_count == 10:
                 self.running = False
@@ -314,22 +315,23 @@ class NumGame:
         # 결과 화면 업데이트
         self.Num_screen.fill((255, 255, 255))
         self.Num_screen.blit(self.result_text, self.result_rect)
+        print("결과창 시작")
         
         if self.score < 20 :
-            self.screen.blit(self.Score_0, (225, 500))
-        elif 20 <= self.score <40 :
-            self.screen.blit(self.Score_1, (225, 500))
-        elif 40 <= self.score <60 :
-            self.screen.blit(self.Score_2, (225, 500))
-        elif 60 <= self.score <80 :
-            self.screen.blit(self.Score_3, (225, 500))
+            self.screen.blit(self.Score_0, (20, 100))
+        elif 20 <= self.score < 40 :
+            self.screen.blit(self.Score_1, (20, 100))
+        elif 40 <= self.score < 60 :
+            self.screen.blit(self.Score_2, (20, 100))
+        elif 60 <= self.score < 80 :
+            self.screen.blit(self.Score_3, (20, 100))
         elif 80 <= self.score < 100 :
-            self.screen.blit(self.Score_4, (225, 500))
+            self.screen.blit(self.Score_4, (20, 100))
         elif self.score == 100 :
-            self.screen.blit(self.Score_5, (225, 500))
-        
+            self.screen.blit(self.Score_5, (20, 100))
+        print("결과창")
         pygame.display.flip()
-
+        time.sleep(5)
         # 결과 화면 유지
         running = True
         while running:
